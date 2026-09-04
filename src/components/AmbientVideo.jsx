@@ -44,8 +44,11 @@ export default function AmbientVideo({
 
   useEffect(() => {
     if (!box.current || nearby) return;
+    // Generous margin: a full-bleed band should have its clip decoded before
+    // it reaches the viewport, so the poster is a safety net rather than a state
+    // the visitor actually sees.
     const io = new IntersectionObserver(([e]) => e.isIntersecting && setNearby(true), {
-      rootMargin: '400px',
+      rootMargin: '900px',
     });
     io.observe(box.current);
     return () => io.disconnect();

@@ -25,8 +25,7 @@ export const images = {
     "widths": [
       640,
       1024,
-      1600,
-      2400
+      1600
     ],
     "fallback": 900,
     "lqip": "data:image/webp;base64,UklGRl4AAABXRUJQVlA4IFIAAACwAwCdASoYAAoAPu1kqk4ppaQiMAgBMB2JQBOgAsNRH7ZW/2z8AAD+mC0cXe6SmKKUJ4ikvINoaL5b+N0XsrrAx3rGg8rSiCF48ArC2VZMBAAA",
@@ -243,9 +242,9 @@ export const images = {
     "height": 960,
     "aspect": 0.5625,
     "widths": [
-      540
+      480
     ],
-    "fallback": 540,
+    "fallback": 480,
     "lqip": "data:image/webp;base64,UklGRp4AAABXRUJQVlA4IJIAAAAwBgCdASoYACsAPt1cpU2opSOiMA1REBuJQBYj8BBU/pK2X7vePDt4SskhYBata9E80uBXO0L4zwgAAP6RTxGCh3ANtkMmH4zvmokP5pw9wSJgsC6S0zG+l99DfQBRE+b/2ZJ+xmi0g4UNf50feiO8XfALmEx9+j28Rsus3cc+KiAlPy1IlICcb952BLNV3T0oAA==",
     "role": "Poster for craft-process"
   },
@@ -255,9 +254,10 @@ export const images = {
     "height": 618,
     "aspect": 1.7799,
     "widths": [
-      640
+      640,
+      768
     ],
-    "fallback": 640,
+    "fallback": 768,
     "lqip": "data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAABwAwCdASoYAA0APu1iqk2ppaQiMAgBMB2JZQCdABjcuEP8MAAA/rf5F2LrSKJcmFIV+tz05wjn80QgHpa81M7IpDd/VcMPbF2AAA==",
     "role": "Poster for room-reveal"
   },
@@ -267,11 +267,24 @@ export const images = {
     "height": 720,
     "aspect": 1.25,
     "widths": [
-      640
+      480
     ],
-    "fallback": 640,
+    "fallback": 480,
     "lqip": "data:image/webp;base64,UklGRnQAAABXRUJQVlA4IGgAAAAQBQCdASoYABMAPtVao02oJaMiN+gBABqJQBOgBlb+dIwxYNVfn2BZrSOT7W+qx8KAAP7k/SQ7bKUXJy+XQh9EErLSa9pH50kOm3LtSgOw4pLJM9RCbvsFB5AxWhqLzxSq81ZOBjAAAA==",
     "role": "Poster for craft-detail"
+  },
+  "showroom-tour-poster": {
+    "slug": "showroom-tour-poster",
+    "width": 1000,
+    "height": 424,
+    "aspect": 2.3585,
+    "widths": [
+      640,
+      768
+    ],
+    "fallback": 768,
+    "lqip": "data:image/webp;base64,UklGRmgAAABXRUJQVlA4IFwAAABQBACdASoYAAoAPu1oqk6ppiQiMAgBMB2JYwCdABwxwdOua1nRh/8t/92QAPryGWTD8OxZ2V8omUEAPbibgwtsAadw09ZJmSm44qQJBePEwswXC2rSD1LjecKUAA==",
+    "role": "Poster for showroom-tour"
   },
   "interiors-joinery-poster": {
     "slug": "interiors-joinery-poster",
@@ -279,9 +292,9 @@ export const images = {
     "height": 960,
     "aspect": 0.5625,
     "widths": [
-      540
+      480
     ],
-    "fallback": 540,
+    "fallback": 480,
     "lqip": "data:image/webp;base64,UklGRrYAAABXRUJQVlA4IKoAAACQBgCdASoYACsAPu1iqk6ppSOiKrgN+TAdiUAVgAFBZQp0jULgTlz+N9/PK774WONLmRn0y0ooyaHl7jYAAPyBszmRPNfBOKdIBWIaGBlbF6qQVSOaLqxSRueDE7T18h4kQIRRNpS6NsEmC2swD9VlyBA50iNtI+6qO9pn34C0aTyMdp4K5Ok3to/G/z/9ujwolgxJ2oJLzlo4IuVr5XqRQhOaCMC+MMAAAA==",
     "role": "Poster for interiors-joinery"
   }
@@ -318,13 +331,23 @@ export const videos = {
     "lqip": "data:image/webp;base64,UklGRnQAAABXRUJQVlA4IGgAAAAQBQCdASoYABMAPtVao02oJaMiN+gBABqJQBOgBlb+dIwxYNVfn2BZrSOT7W+qx8KAAP7k/SQ7bKUXJy+XQh9EErLSa9pH50kOm3LtSgOw4pLJM9RCbvsFB5AxWhqLzxSq81ZOBjAAAA==",
     "role": "Material. Macro of embroidery, gilt carving and nailhead trim."
   },
+  "showroom-tour": {
+    "slug": "showroom-tour",
+    "poster": "showroom-tour-poster",
+    "width": 1000,
+    "height": 424,
+    "aspect": 2.3585,
+    "duration": 6.5,
+    "lqip": "data:image/webp;base64,UklGRmgAAABXRUJQVlA4IFwAAABQBACdASoYAAoAPu1oqk6ppiQiMAgBMB2JYwCdABwxwdOua1nRh/8t/92QAPryGWTD8OxZ2V8omUEAPbibgwtsAadw09ZJmSm44qQJBePEwswXC2rSD1LjecKUAA==",
+    "role": "Proof. The actual showroom floor, Agrabad Access Road, Chattogram."
+  },
   "interiors-joinery": {
     "slug": "interiors-joinery",
     "poster": "interiors-joinery-poster",
     "width": 540,
     "height": 960,
     "aspect": 0.5625,
-    "duration": 5,
+    "duration": 4.5,
     "lqip": "data:image/webp;base64,UklGRrYAAABXRUJQVlA4IKoAAACQBgCdASoYACsAPu1iqk6ppSOiKrgN+TAdiUAVgAFBZQp0jULgTlz+N9/PK774WONLmRn0y0ooyaHl7jYAAPyBszmRPNfBOKdIBWIaGBlbF6qQVSOaLqxSRueDE7T18h4kQIRRNpS6NsEmC2swD9VlyBA50iNtI+6qO9pn34C0aTyMdp4K5Ok3to/G/z/9ujwolgxJ2oJLzlo4IuVr5XqRQhOaCMC+MMAAAA==",
     "role": "Interiors. Fitted joinery - shelving, cabinetry, built-ins."
   }

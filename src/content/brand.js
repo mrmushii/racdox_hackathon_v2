@@ -33,6 +33,9 @@ export const contact = {
       "Hello Heaven Furniture Mart — I'd like to request a quote for a custom piece."
     ),
   cta: 'Request a Quote',
+  maps:
+    'https://www.google.com/maps/search/?api=1&query=' +
+    encodeURIComponent('Heaven Furniture Mart, Agrabad Access Road, Chattogram, Bangladesh'),
   social: [
     { label: 'Facebook', href: 'https://facebook.com/HeavenFurnitureMart' },
     { label: 'Instagram', href: 'https://instagram.com/heaven_furniture_ltd' },
@@ -42,11 +45,19 @@ export const contact = {
 
 /* `preview` drives the desktop hover panel. An item without one degrades to a
    plain underline — a preview panel with a weak image looks worse than none. */
+export const announcement = [
+  'Free design consultation — at your home or our showroom',
+  'Delivery and installation included',
+  'Agrabad Access Road, Chattogram',
+];
+
 export const nav = [
   { label: 'Collections', href: '#collections', preview: { image: 'living',
     blurb: 'Living, bedroom, dining, office and bespoke — five rooms, all made to order.' } },
   { label: 'Bespoke', href: '#bespoke', preview: { image: 'bespoke',
     blurb: 'Consult, design, craft, install. Four steps, in-house in Agrabad.' } },
+  { label: 'Interiors', href: '#interiors', preview: { image: 'office',
+    blurb: 'Fitted joinery, desks and workstations — the room around the furniture.' } },
   { label: 'Showroom', href: '#showroom', preview: { image: 'showroom-hall',
     blurb: 'A large showroom on Agrabad Access Road, Chattogram. Open to visit.' } },
 ];
@@ -200,6 +211,26 @@ export const cta = {
 
 export const footer = {
   copyright: `© ${new Date().getFullYear()} Heaven Furniture Mart. All rights reserved.`,
+  columns: [
+    {
+      title: 'Collections',
+      links: [
+        { label: 'Living', href: '#collections' },
+        { label: 'Bedroom', href: '#collections' },
+        { label: 'Dining', href: '#collections' },
+        { label: 'Office & Study', href: '#interiors' },
+        { label: 'Bespoke', href: '#bespoke' },
+      ],
+    },
+    {
+      title: 'Studio',
+      links: [
+        { label: 'The bespoke process', href: '#bespoke' },
+        { label: 'Interior styling', href: '#interiors' },
+        { label: 'Showroom', href: '#showroom' },
+      ],
+    },
+  ],
 };
 
 export const meta = {

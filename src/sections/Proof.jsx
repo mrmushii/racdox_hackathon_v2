@@ -1,5 +1,6 @@
 import { proof } from '../content/brand.js';
 import Picture from '../components/Picture.jsx';
+import AmbientVideo from '../components/AmbientVideo.jsx';
 
 /**
  * The credibility section. The brief frames the timeline as an optional
@@ -11,18 +12,18 @@ import Picture from '../components/Picture.jsx';
 export default function Proof() {
   return (
     <section id="showroom" className="bg-surface pb-[var(--section-y)]">
-      {/* The widest frame in the set (3168x1344), used at the one place a
-          2.36:1 image belongs: full bleed, as the section's own header. */}
+      {/* Real footage of the actual showroom, heading the credibility section.
+          Everything else on this page is generated; this is not, and it is the
+          one place where that matters most — the brief's own note is that real
+          Heaven material will always read as more credible. */}
       <figure className="relative">
-        <div className="aspect-[21/9] w-full overflow-hidden sm:aspect-[2.36/1]">
-          <Picture
-            name="showroom-wide"
-            alt="The Heaven Furniture Mart showroom floor on Agrabad Access Road, Chattogram"
-            sizes="100vw"
-            className="block h-full w-full"
-            imgClassName="h-full w-full object-cover"
-          />
-        </div>
+        <AmbientVideo
+          name="showroom-tour"
+          alt="Walking the Heaven Furniture Mart showroom floor in Chattogram, past carved and upholstered suites"
+          sizes="100vw"
+          className="aspect-[21/9] w-full overflow-hidden sm:aspect-[2.36/1]"
+          mediaClassName="h-full w-full object-cover"
+        />
         <figcaption className="shell caption mt-md text-ink-muted">{proof.bandCaption}</figcaption>
       </figure>
 

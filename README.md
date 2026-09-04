@@ -90,6 +90,21 @@ turned out to be wrong, and re-auditing each recovered the asset:
 Both AI clips' sparkle watermarks are removed by cropping, not masking, and
 neither fake-storefront ending is reached.
 
+**The showroom tour is the most credible asset on the page** and heads the
+credibility section for that reason. Its segment was chosen by measurement: all
+125s were scored every 2s for sharpness (stdev of a Laplacian convolution),
+because the footage is handheld and much of it is motion-blurred. The tour
+averages ~60; 12.8–22.6s is the longest shot with no scene cut and holds 64–73
+throughout, so the clip is taken from inside it. The 0–4s title card and the
+120s+ end card both carry burned-in text and are avoided.
+
+**One supplied video is deliberately NOT used.** The second showroom file is
+labelled *kazipara, mirpur, 280 no metro pillar* — that is Dhaka, and its
+signage reads "HEAVEN Furniture", not "Heaven Furniture Mart". The brief fixes
+the location as Agrabad Access Road, Chattogram, and brand facts are not ours to
+change. If it is a second branch, say so and it goes in; captioning Dhaka
+footage as the Agrabad showroom would assert something the brief does not.
+
 **The office grade is a channel recombination, not a tint.** sharp's `.tint()`
 tints *luminance* and discards the existing chroma, which turned the office
 renders sepia — colour gone, not warmed. `WARM` in the pipeline lifts red, holds
@@ -100,7 +115,7 @@ green and pulls blue down, bringing them to ~S=35% with their colour intact.
 | | Effect |
 |---|---|
 | Brand moment | Teal veil + wordmark, lifts on a fixed 1.15s timeline. Waits on nothing, runs once per session. |
-| Nav | Hides on scroll-down, returns on scroll-up, transparent → teal pill; desktop hover preview panels |
+| Nav | Slim bar + full-screen menu sheet. Sheet wipes down, links stagger, preview image swaps per item. Real dialog: Escape, focus trap, focus restored, scroll frozen. |
 | Hero | Masked `SplitText` line reveal, gated on `document.fonts.ready`; panel parallax |
 | Intro | Scroll-linked word-by-word fill, then a room furnishing itself |
 | Collections | Staggered entrance, slow hover scale inside `overflow:hidden` |
@@ -119,6 +134,25 @@ interaction — the thing it is meant to be remembered for — was absent on the
 devices most people use. The pin now runs at every width with a shorter scrub
 distance and a 16:9 video band, verified to fit the viewport at ten sizes from
 360x740 to 1920x1080. Only `prefers-reduced-motion` still takes the static path.
+
+The **footer** follows the standard furniture-retail arrangement — index
+columns, contact, then the mark oversized across the base. Cancan, one of the
+eight brands in the live audit, is the reference for that arrangement; the
+content, palette, type and code are Heaven's own.
+
+The **nav** deliberately does not. A three-tier retail header was built and
+then replaced: it was the most shop-like element on the page, working against
+the brief's first instruction — a luxury interior studio, *not* an online
+furniture shop — and it cost 158px of every viewport. A slim bar plus a
+full-screen sheet gives the hero its height back and reads as a studio.
+
+The one risk of an overlay nav is burying the call to action behind a click, so
+the CTA sits in the bar *and* is repeated inside the sheet. The sheet is a real
+dialog, not a styled div: `aria-modal`, Escape to close, focus moved in on open
+and returned to the trigger on close, Tab trapped inside, and the page behind it
+frozen through **both** Lenis and the document — which one owns the wheel
+depends on input device and reduced-motion state, so stopping only one leaves
+the page scrolling under the menu on some inputs.
 
 There is **no preloader** in the blocking sense. A real one runs 2.5–3.5s and
 spends a tenth of the brief's 30-second comprehension budget on a spinner; none

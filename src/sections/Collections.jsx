@@ -82,6 +82,19 @@ export default function Collections() {
           {collections.footnote}
         </p>
       </div>
+
+      {/* One full room, after five categories. The widest frame in the set
+          (3168x1344) at the one place a 2.36:1 image belongs. Kept well away
+          from the showroom tour so the two wide bands don't echo. */}
+      <div className="mt-3xl aspect-[21/9] w-full overflow-hidden sm:aspect-[2.6/1]">
+        <Picture
+          name="showroom-wide"
+          alt="A carved and upholstered living-room suite by Heaven Furniture Mart"
+          sizes="100vw"
+          className="block h-full w-full"
+          imgClassName="h-full w-full object-cover"
+        />
+      </div>
     </section>
   );
 }

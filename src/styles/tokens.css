@@ -39,7 +39,10 @@
   --font-display: "Instrument Serif", "Iowan Old Style", Georgia, serif;
   --font-sans: "Inter Tight", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 
-  --text-display-xl: clamp(4rem, 18vw, 17rem);   /* spent EXACTLY once, in the footer */
+  /* Spent EXACTLY once, in the footer. Sized so the 6-glyph wordmark lands at
+     ~45vw and clears the link columns horizontally — that gap is what lets it
+     hold on scroll without ploughing through them. Measured off Cancan: 46.7vw. */
+  --text-display-xl: clamp(4.25rem, 10.5vw, 10.5rem);
   --text-display-lg: clamp(2.25rem, 6vw, 5.5rem);     /* section headlines   */
   --text-display-md: clamp(1.5rem, 3vw, 2.75rem);
   --text-body-lg:    clamp(1.0625rem, 1.2vw, 1.25rem);

@@ -19,7 +19,7 @@ export default function CTAButton({ className = '', size = 'md' }) {
       target="_blank"
       rel="noopener noreferrer"
       className={`caption group relative inline-flex min-h-[2.75rem] items-center gap-3
-                  overflow-hidden bg-gold text-deep ${pad} ${className}`}
+                  overflow-hidden whitespace-nowrap bg-gold text-deep ${pad} ${className}`}
     >
       {/* Slow wipe on hover: 0.6s, symmetric. Furniture is heavy. */}
       <span

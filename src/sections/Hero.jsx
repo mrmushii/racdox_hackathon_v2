@@ -75,7 +75,7 @@ export default function Hero() {
     <section
       id="top"
       ref={root}
-      className="relative bg-base pt-[clamp(7rem,14vw,11rem)] pb-[clamp(3rem,8vw,7rem)]"
+      className="relative bg-base pt-[clamp(7rem,11vw,10rem)] pb-[clamp(3rem,8vw,7rem)]"
     >
       <div className="shell grid grid-cols-12 items-center gap-y-xl gap-x-[clamp(1rem,2vw,2rem)]">
         {/* Copy sits in columns 1-6. Asymmetric: the corpus almost never centres. */}

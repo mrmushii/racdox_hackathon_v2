@@ -1,28 +1,44 @@
-import { useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGSAP } from '@gsap/react';
-import { gsap, ScrollTrigger } from '../lib/gsap.js';
-import { nav, brand } from '../content/brand.js';
+import { gsap, ScrollTrigger, reduced } from '../lib/gsap.js';
+import { lockScroll } from '../lib/smooth-scroll.js';
+import { nav, brand, contact } from '../content/brand.js';
 import Wordmark from './Wordmark.jsx';
 import CTAButton from './CTAButton.jsx';
 import Picture from './Picture.jsx';
 import { useMediaQuery } from '../lib/use-media-query.js';
 
 /**
- * Hides on scroll-down, returns on scroll-up, and swaps a transparent bar for a
- * deep-teal pill once off the top.
+ * A slim bar and a full-screen menu.
  *
- * Duration 0.2s — nav motion is the one place on this page that must NOT be
- * slow. At 0.6s a returning nav reads as broken.
+ * The retail three-tier header this replaces was the most shop-like thing on
+ * the page, which works against the brief's first instruction — a luxury
+ * interior studio, not an online furniture shop. A single bar plus an overlay
+ * gives the hero its full height back and reads as a studio.
+ *
+ * The CTA stays in the bar and is repeated inside the menu, so the one action
+ * is never the thing hidden behind a click. That is the whole risk of an
+ * overlay nav and the only part of it worth defending against.
+ *
+ * The menu is a real dialog: Escape closes it, focus moves in on open and
+ * returns to the trigger on close, Tab is trapped inside it, and the page
+ * behind it is frozen through Lenis AND the document, because which one owns
+ * the wheel depends on input and reduced-motion state.
  */
 export default function Nav() {
   const bar = useRef(null);
-  const panel = useRef(null);
-  const [floating, setFloating] = useState(false);
-  // A hover preview is dead weight on a touch device, and there is no hover to
-  // trigger it with. Gate on a fine pointer, not on width.
-  const canHover = useMediaQuery('(hover: hover) and (pointer: fine) and (min-width: 1024px)');
-  const [active, setActive] = useState(null);
+  const sheet = useRef(null);
+  const trigger = useRef(null);
+  const closeBtn = useRef(null);
 
+  const [open, setOpen] = useState(false);
+  const [solid, setSolid] = useState(false);
+  const [hovered, setHovered] = useState(0);
+  const canHover = useMediaQuery('(hover: hover) and (pointer: fine) and (min-width: 1024px)');
+
+  const close = useCallback(() => setOpen(false), []);
+
+  /* --- bar: solid past the hero, hides on scroll-down --------------------- */
   useGSAP(
     () => {
       let last = 0;
@@ -31,9 +47,8 @@ export default function Nav() {
         end: 'max',
         onUpdate: (self) => {
           const y = self.scroll();
-          const atTop = y < 24;
-          setFloating(!atTop);
-          const hide = !atTop && y > last && y - last > 2;
+          setSolid(y > window.innerHeight * 0.55);
+          const hide = y > 120 && y > last && y - last > 2;
           gsap.to(bar.current, {
             yPercent: hide ? -140 : 0,
             duration: 0.2,
@@ -48,99 +63,214 @@ export default function Nav() {
     { scope: bar }
   );
 
+  /* --- menu open / close -------------------------------------------------- */
   useGSAP(
     () => {
-      if (!panel.current) return;
-      const open = active !== null;
-      gsap.to(panel.current, {
-        autoAlpha: open ? 1 : 0,
-        y: open ? 0 : -8,
-        duration: open ? 0.45 : 0.25,
-        ease: 'power2.out',
-        overwrite: true,
-      });
+      const el = sheet.current;
+      if (!el) return;
+
+      if (reduced()) {
+        gsap.set(el, { autoAlpha: open ? 1 : 0, yPercent: 0 });
+        gsap.set('.sheet-row', { autoAlpha: 1, y: 0 });
+        return;
+      }
+
+      if (open) {
+        gsap
+          .timeline()
+          .set(el, { visibility: 'visible' })
+          .fromTo(el, { yPercent: -100 }, { yPercent: 0, duration: 0.6, ease: 'power3.inOut' })
+          .fromTo(
+            '.sheet-row',
+            { y: 40, autoAlpha: 0 },
+            { y: 0, autoAlpha: 1, duration: 0.5, stagger: 0.06, ease: 'power2.out' },
+            '-=0.25'
+          )
+          .fromTo('.sheet-aside', { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5 }, '<');
+      } else {
+        gsap.to(el, {
+          yPercent: -100,
+          duration: 0.45,
+          ease: 'power3.inOut',
+          onComplete: () => gsap.set(el, { visibility: 'hidden' }),
+        });
+      }
     },
-    { dependencies: [active], scope: bar }
+    // Scope is the SHEET, not the bar: '.sheet-row' and '.sheet-aside' live in
+    // the sheet, which is a sibling of the header. Scoped to the bar they match
+    // nothing, both fromTo tweens no-op, and the panel slides down with every
+    // child fully visible — dragging the footer CTA across the whole viewport.
+    { dependencies: [open], scope: sheet }
   );
 
-  const item = canHover ? nav.find((n) => n.label === active) : null;
+  /* --- dialog behaviour: scroll lock, Escape, focus ----------------------- */
+  useEffect(() => {
+    lockScroll(open);
+    if (open) {
+      // The timeline's visibility:visible lands when the tween plays, which is
+      // a tick after this effect. Focusing a still-hidden element fails
+      // silently, so make it focusable here rather than relying on the tween.
+      gsap.set(sheet.current, { visibility: 'visible' });
+      closeBtn.current?.focus();
+    } else {
+      trigger.current?.focus({ preventScroll: true });
+    }
+
+    if (!open) return;
+    const onKey = (e) => {
+      if (e.key === 'Escape') return close();
+      if (e.key !== 'Tab') return;
+      const focusable = sheet.current?.querySelectorAll('a[href], button');
+      if (!focusable?.length) return;
+      const first = focusable[0];
+      const lastEl = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        lastEl.focus();
+      } else if (!e.shiftKey && document.activeElement === lastEl) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [open, close]);
+
+  useEffect(() => () => lockScroll(false), []);
+
+  const preview = nav[hovered]?.preview;
 
   return (
-    <header
-      ref={bar}
-      className="fixed inset-x-0 top-0 z-50 px-[var(--gutter)] pt-[clamp(0.75rem,1.5vw,1.25rem)]"
-    >
-      <div
-        className={`on-deep flex items-center justify-between gap-md
-                    px-[clamp(1rem,2vw,1.75rem)] py-[clamp(0.6rem,1vw,0.9rem)]
-                    transition-[background-color,color] duration-[600ms]
-                    ease-[cubic-bezier(.445,.05,.55,.95)]
-                    ${floating ? 'bg-deep text-on-deep' : 'bg-transparent text-ink'}`}
+    <>
+      <header
+        ref={bar}
+        className="fixed inset-x-0 top-0 z-50 px-[var(--gutter)] pt-[clamp(0.75rem,1.5vw,1.25rem)]"
       >
-        <a
-          href="#top"
-          aria-label={`${brand.name} — home`}
-          className="flex min-h-[2.75rem] shrink-0 items-center"
-        >
-          <Wordmark size="sm" />
-        </a>
-
-        <nav
-          aria-label="Primary"
-          className="hidden md:block"
-          onMouseLeave={() => setActive(null)}
-        >
-          <ul className="flex items-center gap-[clamp(1.25rem,2.5vw,2.5rem)]">
-            {nav.map((item) => (
-              <li key={item.href} onMouseEnter={() => setActive(item.label)}>
-                <a href={item.href} className="caption group relative inline-flex min-h-[2.75rem] items-center">
-                  {item.label}
-                  {/* Hover underline cut at the mark's own apex angle. */}
-                  <span
-                    aria-hidden="true"
-                    className="absolute -bottom-0.5 left-0 h-px w-full origin-left scale-x-0
-                               bg-current transition-transform duration-[600ms]
-                               ease-[cubic-bezier(.445,.05,.55,.95)] group-hover:scale-x-100"
-                  />
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        <CTAButton className="shrink-0" />
-      </div>
-
-      {/* Desktop hover preview. One panel, repositioned by content rather than
-          one panel per item, so only a single element ever animates. */}
-      {canHover && (
         <div
-          ref={panel}
-          aria-hidden="true"
-          className="pointer-events-none invisible mx-auto mt-2 max-w-[34rem] opacity-0"
-          onMouseEnter={() => setActive(active)}
+          className={`on-deep flex items-center justify-between gap-md px-[clamp(0.75rem,1.5vw,1.5rem)]
+                      py-[clamp(0.5rem,0.9vw,0.8rem)] transition-colors duration-[400ms]
+                      ease-[cubic-bezier(.445,.05,.55,.95)]
+                      ${solid ? 'bg-deep text-on-deep' : 'bg-transparent text-ink'}`}
         >
-          {item?.preview && (
-            <div className="on-deep flex items-center gap-md bg-deep p-sm text-on-deep">
-              <div className="h-24 w-32 shrink-0 overflow-hidden">
-                <Picture
-                  name={item.preview.image}
-                  alt=""
-                  sizes="128px"
-                  className="block h-full w-full"
-                  imgClassName="h-full w-full object-cover"
-                />
+          <a
+            href="#top"
+            aria-label={`${brand.name} — home`}
+            className="flex min-h-[2.75rem] shrink-0 items-center"
+          >
+            <Wordmark size="sm" />
+          </a>
+
+          <div className="flex items-center gap-[clamp(0.75rem,1.5vw,1.5rem)]">
+            <CTAButton />
+            <button
+              ref={trigger}
+              type="button"
+              onClick={() => setOpen(true)}
+              aria-expanded={open}
+              aria-controls="menu-sheet"
+              className="caption group inline-flex min-h-[2.75rem] min-w-[2.75rem] items-center gap-2"
+            >
+              Menu
+              <span aria-hidden="true" className="flex flex-col gap-[3px]">
+                <span className="block h-px w-4 bg-current transition-transform duration-[400ms] group-hover:translate-x-0.5" />
+                <span className="block h-px w-4 bg-current transition-transform duration-[400ms] group-hover:-translate-x-0.5" />
+              </span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* --- the sheet --------------------------------------------------- */}
+      <div
+        id="menu-sheet"
+        ref={sheet}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Menu"
+        className="on-deep invisible fixed inset-0 z-[60] flex flex-col overflow-y-auto
+                   overscroll-contain bg-deep text-on-deep"
+      >
+        <div className="shell flex items-center justify-between gap-md pt-[clamp(0.9rem,2.2vh,1.9rem)]">
+          <Wordmark size="sm" />
+          <button
+            ref={closeBtn}
+            type="button"
+            onClick={close}
+            className="caption inline-flex min-h-[2.75rem] min-w-[2.75rem] items-center gap-2"
+          >
+            Close
+            <span aria-hidden="true" className="relative block h-3 w-3">
+              <span className="absolute left-0 top-1/2 block h-px w-3 rotate-45 bg-current" />
+              <span className="absolute left-0 top-1/2 block h-px w-3 -rotate-45 bg-current" />
+            </span>
+          </button>
+        </div>
+
+        <div className="shell grid flex-1 grid-cols-12 items-center gap-x-[clamp(1rem,2vw,2rem)]
+                        gap-y-[clamp(1.25rem,3vh,3.75rem)] py-[clamp(1rem,3vh,3.75rem)]">
+          <nav aria-label="Primary" className="col-span-12 lg:col-span-7">
+            <ul>
+              {nav.map((item, i) => (
+                <li key={item.href} className="sheet-row border-b border-line-deep">
+                  <a
+                    href={item.href}
+                    onClick={close}
+                    onMouseEnter={() => setHovered(i)}
+                    onFocus={() => setHovered(i)}
+                    className="group flex items-baseline gap-md py-[clamp(0.3rem,1.15vh,1.1rem)]"
+                  >
+                    <span className="caption w-8 shrink-0 text-gold">
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                    <span className="display text-[clamp(2rem,min(6vw,7.2vh),5.5rem)] transition-transform duration-[600ms] ease-[cubic-bezier(.445,.05,.55,.95)] group-hover:translate-x-2">
+                      {item.label}
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          {canHover && (
+            <div className="sheet-aside col-span-12 lg:col-span-4 lg:col-start-9">
+              <div className="aspect-[4/5] max-h-[46vh] overflow-hidden border border-line-deep">
+                {preview && (
+                  <Picture
+                    key={preview.image}
+                    name={preview.image}
+                    alt=""
+                    sizes="30vw"
+                    className="block h-full w-full"
+                    imgClassName="h-full w-full object-cover"
+                  />
+                )}
               </div>
-              <div>
-                <p className="caption text-gold">{item.label}</p>
-                <p className="mt-xs text-[0.8125rem] leading-snug text-muted-deep">
-                  {item.preview.blurb}
-                </p>
-              </div>
+              <p className="mt-md max-w-[34ch] text-muted-deep">{preview?.blurb}</p>
             </div>
           )}
         </div>
-      )}
-    </header>
+
+        <div className="shell sheet-row flex flex-wrap items-center justify-between gap-md
+                        border-t border-line-deep py-[clamp(0.9rem,2.4vh,3.75rem)]">
+          <div className="flex flex-wrap items-center gap-x-2xl gap-y-sm">
+            <a
+              href={contact.phoneHref}
+              className="caption inline-flex min-h-[2.75rem] items-center text-muted-deep transition-colors duration-[600ms] hover:text-gold"
+            >
+              {contact.phoneDisplay}
+            </a>
+            <a
+              href={contact.maps}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="caption inline-flex min-h-[2.75rem] items-center text-muted-deep transition-colors duration-[600ms] hover:text-gold"
+            >
+              {contact.addressLine}, {contact.addressCity}
+            </a>
+          </div>
+          <CTAButton />
+        </div>
+      </div>
+    </>
   );
 }

@@ -8,6 +8,8 @@
 import Lenis from 'lenis';
 import { gsap, ScrollTrigger, reduced } from './gsap.js';
 
+let instance = null;
+
 export function initSmoothScroll() {
   if (reduced()) return () => {};
 
@@ -20,6 +22,7 @@ export function initSmoothScroll() {
     // fighting it is the most common cause of janky mobile scrolling.
     syncTouch: false,
   });
+  instance = lenis;
 
   lenis.on('scroll', ScrollTrigger.update);
 
@@ -30,5 +33,19 @@ export function initSmoothScroll() {
   return () => {
     gsap.ticker.remove(raf);
     lenis.destroy();
+    instance = null;
   };
+}
+
+/**
+ * Freeze the page behind a full-screen overlay.
+ *
+ * Both halves are needed: Lenis owns the wheel when it is running, and the
+ * document owns it when Lenis is off (reduced motion, or touch, where
+ * syncTouch is false). Stopping only one leaves the page scrolling underneath
+ * the menu on some inputs and not others.
+ */
+export function lockScroll(locked) {
+  if (instance) locked ? instance.stop() : instance.start();
+  document.documentElement.style.overflow = locked ? 'hidden' : '';
 }

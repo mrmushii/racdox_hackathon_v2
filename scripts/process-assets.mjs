@@ -76,7 +76,7 @@ const WEBP = { quality: 62, effort: 6 };
 const IMAGES = [
   { slug: 'hero-bed',      max: 1600, file: 'Minimalist Bed Set by Heaven Furniture Mart.jpeg',
     role: 'Hero still + mobile fallback. Same room as the hero video.' },
-  { slug: 'showroom-wide', max: 2400, file: 'Classic Furniture Sofa set by Heaven Furniture Mart.jpeg',
+  { slug: 'showroom-wide', max: 1600, file: 'Classic Furniture Sofa set by Heaven Furniture Mart.jpeg',
     role: 'Intro full-bleed band. Widest frame in the set (3168x1344).' },
   { slug: 'living',        max: 1024, file: 'Emroiydery Sofa Set Heaven Furniture Mart.jpeg',
     role: 'Collections - Living. Gilt frame, grey velvet, embroidery.' },
@@ -186,7 +186,7 @@ const VIDEOS = [
     slug: 'craft-process',
     file: 'YTDown.com_Shorts_Handcrafted-Luxury-Sofa-Process-Bespoke-_Media_lxhZF9s7fhY_001_720p.mp4',
     filter: 'scale=540:960',
-    start: 1.5, duration: 7.0, crf: 33,
+    start: 1.5, duration: 7.0, crf: 34,
     palindrome: false,  // directional action - reversed hammering reads wrong
     role: 'Bespoke Highlight, 9:16 panel. Real workshop footage.',
   },
@@ -202,7 +202,7 @@ const VIDEOS = [
     // it plays in a full-width band, so anything smaller is upscaled on screen
     // and goes soft. Native crop is the sharpest this source can be.
     filter: 'crop=1100:619:0:60',
-    start: 0.6, duration: 5.3, crf: 32,
+    start: 0.6, duration: 5.3, crf: 33, posterMax: 768,
     palindrome: false,
     role: 'Intro. An empty room furnishing itself.',
   },
@@ -224,6 +224,26 @@ const VIDEOS = [
     role: 'Material. Macro of embroidery, gilt carving and nailhead trim.',
   },
   {
+    // THE REAL SHOWROOM. Handheld phone footage of the actual Chattogram
+    // showroom, and the most credible asset on the page — the brief's own note
+    // is that "real Heaven photos will always look more credible".
+    //
+    // Segment chosen by measurement, not eye: every 2s of the 125s tour was
+    // scored for sharpness (stdev of a Laplacian convolution). The footage is
+    // handheld and much of it is motion-blurred, averaging ~60; 12.8-22.6s is
+    // the longest CONTINUOUS shot (no scene cut) and holds 64-73 throughout.
+    // 13.2-20.2 sits inside it. The 0-4s title card and the 120s+ end card both
+    // carry burned-in text and are avoided.
+    slug: 'showroom-tour',
+    file: 'Heaven Furniture Mart Chattogram – Virtual Showroom Tour _ Luxury & Bespoke Furniture Bangladesh 😊_720p.mp4',
+    // Cropped to the band's own 2.36:1 rather than letting CSS crop a 16:9
+    // frame: same picture, a quarter fewer pixels to encode.
+    filter: 'crop=1280:542:0:100,scale=1000:424',
+    start: 13.2, duration: 6.5, crf: 34, posterMax: 768,
+    palindrome: false,
+    role: 'Proof. The actual showroom floor, Agrabad Access Road, Chattogram.',
+  },
+  {
     // The kitchen walkthrough. Real handheld footage rather than AI, but of a
     // US house, and cool modern where everything else is warm ornate. Used for
     // the one thing in it that IS a Heaven category - fitted joinery: pantry
@@ -233,7 +253,7 @@ const VIDEOS = [
     slug: 'interiors-joinery',
     file: 'YTDown.com_Shorts_Entrance-from-garage-cozy-kitchen-dreamh_Media_ybx69tQ2uDY_001_480p.mp4',
     filter: 'scale=540:960,colortemperature=temperature=4600,eq=saturation=1.18',
-    start: 4.0, duration: 5.0, crf: 32,
+    start: 4.0, duration: 4.5, crf: 33,
     palindrome: false,
     role: 'Interiors. Fitted joinery - shelving, cabinetry, built-ins.',
   },
@@ -300,7 +320,10 @@ async function processVideo(entry) {
 
   // Poster from the same trimmed segment, so it matches frame one exactly.
   await ffmpeg(['-ss', String(entry.start), '-i', src, '-frames:v', '1', '-vf', entry.filter, still]);
-  const poster = await emit(still, { slug: `${entry.slug}-poster`, max: 640, role: `Poster for ${entry.slug}` }, ' [poster]');
+  // Full-bleed clips need a poster that can survive being the width of the
+  // page; a panel-sized clip does not. 480 stretched across 1440 read as a
+  // pale wash before the video painted.
+  const poster = await emit(still, { slug: `${entry.slug}-poster`, max: entry.posterMax ?? 480, role: `Poster for ${entry.slug}` }, ' [poster]');
   await rm(still);
 
   const size = await sizeOf(mp4);

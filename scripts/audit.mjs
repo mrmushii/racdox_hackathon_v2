@@ -47,7 +47,7 @@ const r = await page.evaluate(() => {
     noDims: q('img').filter((i) => !i.getAttribute('width') || !i.getAttribute('height')).length,
     lazyHero: q('img')[0]?.getAttribute('loading'),
     wa: q('a[href*="wa.me"]').length,
-    waText: [...new Set(q('a[href*="wa.me"]').map((a) => a.innerText.replace(/\s+/g, ' ').trim()))],
+    waText: [...new Set(q('a[href*="wa.me"]').map((a) => a.textContent.replace(/\s+/g, ' ').trim()))],
     landmarks: ['nav', 'main', 'footer', 'header'].filter((t) => document.querySelector(t)),
     small,
     title: document.title,
