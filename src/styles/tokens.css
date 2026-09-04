@@ -1,0 +1,73 @@
+/* ============================================================================
+   Design tokens — the only file in the codebase permitted to contain a hex.
+   Sampled from logo.jpg, not from the brief. See docs/01-brand.md, 05 §1.
+   ========================================================================= */
+
+@theme {
+  /* --- Colour ------------------------------------------------------------
+     Ivory is the dominant ground (~70%), deep teal punctuates (~20%). Every
+     residential photograph measures 60-95% hue-30 warm, so large teal fields
+     fight every image placed on them.                                      */
+
+  --color-base:      #F4F1EA;   /* warm ivory. Never #FFFFFF.               */
+  --color-surface:   #EAE5DA;   /* raised panel on light                     */
+  --color-ink:       #4A3B31;   /* deep brown. 9.49:1 on base.               */
+  --color-ink-muted: rgb(74 59 49 / 0.78);  /* 5.16:1 on base. .62 measured 3.41:1 and failed AA. */
+  --color-line:      rgb(74 59 49 / 0.14);   /* hairlines                    */
+
+  --color-deep:      #152220;   /* logo teal H176 deepened. 14.5:1 on base.  */
+  --color-deep-surf: #34514F;   /* THE LOGO'S OWN TEAL                       */
+  --color-on-deep:   #F4F1EA;
+  --color-line-deep: rgb(244 241 234 / 0.16);
+  --color-muted-deep: rgb(244 241 234 / 0.72);  /* 8.3:1 on deep */
+
+  /* The accent is a material, not a hue, and it is constrained by AREA -
+     the mark spends it on one letter in six, 0.31% of the canvas.
+       gold on deep  = 7.93:1  -> labels, rules, CTA fill w/ deep text
+       gold on ivory = 1.83:1  -> NEVER text. Hairline or icon only.
+       white on gold = 2.07:1  -> never.                                    */
+  --color-gold:      #E8A936;
+  --color-gold-deep: #A8792C;   /* 3.42:1 on ivory. Large/UI only.           */
+  --color-tan:       #C9A882;   /* imagery + large fills. Not a UI colour.   */
+
+  /* --- Type --------------------------------------------------------------
+     Display: vw-sized, NEGATIVE tracking, line-height below 1.
+     UI/caption: 12-13px, uppercase, POSITIVE .1em tracking.
+     Opposite rules, both correct. `caption` is the highest-frequency style
+     on the page and the strongest single luxury signal measured.           */
+
+  --font-display: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+  --font-sans: "Inter Tight", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --text-display-xl: clamp(4rem, 18vw, 17rem);   /* spent EXACTLY once, in the footer */
+  --text-display-lg: clamp(2.25rem, 6vw, 5.5rem);     /* section headlines   */
+  --text-display-md: clamp(1.5rem, 3vw, 2.75rem);
+  --text-body-lg:    clamp(1.0625rem, 1.2vw, 1.25rem);
+  --text-body:       0.9375rem;                       /* 15px               */
+  --text-caption:    0.75rem;                         /* 12px, +.1em, upper */
+
+  /* --- Spacing — container / N (Moooi's system, 1440 / 6·12·18·24·36·72·144)
+     Clamped at both ends so the ratios hold across the design range without
+     collapsing at 390px or ballooning at 2560px.                           */
+
+  --spacing-xs:  clamp(6px,  0.694vw, 12px);   /* 1440/144 = 10px */
+  --spacing-sm:  clamp(12px, 1.389vw, 24px);   /* 1440/72  = 20px */
+  --spacing-md:  clamp(20px, 2.778vw, 48px);   /* 1440/36  = 40px */
+  --spacing-lg:  clamp(28px, 4.167vw, 72px);   /* 1440/24  = 60px */
+  --spacing-xl:  clamp(40px, 5.556vw, 96px);   /* 1440/18  = 80px */
+  --spacing-2xl: clamp(64px, 8.333vw, 144px);  /* 1440/12  = 120px */
+  --spacing-3xl: clamp(96px, 16.667vw, 288px); /* 1440/6   = 240px */
+
+  /* --- Motion ------------------------------------------------------------
+     easeInOutSine. Symmetric easing makes things settle; furniture is heavy.
+     Durations 0.6-1.0s, roughly 3x slower than the studio corpus.          */
+  --ease: cubic-bezier(0.445, 0.05, 0.55, 0.95);
+}
+
+:root {
+  /* Section rhythm. Whitespace above a headline is ~2x the whitespace below. */
+  --section-y: clamp(6rem, 12vw, 14rem);
+  --gutter: clamp(1.25rem, 5vw, 6rem);
+  --measure: 62ch;
+  color-scheme: light;
+}

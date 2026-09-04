@@ -1,0 +1,174 @@
+@import "tailwindcss";
+@import "./tokens.css";
+
+/* ============================================================================
+   Fonts — self-hosted woff2, latin subset, 76 KB total.
+   Instrument Serif for display, Inter Tight (variable) for everything else.
+   ========================================================================= */
+
+@font-face {
+  font-family: "Instrument Serif";
+  src: url("/fonts/instrument-serif-latin.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Instrument Serif";
+  src: url("/fonts/instrument-serif-italic-latin.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Inter Tight";
+  src: url("/fonts/inter-tight-var-latin.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ========================================================================= */
+
+@layer base {
+  *,
+  *::before,
+  *::after { box-sizing: border-box; }
+
+  html {
+    /* Lenis drives scrolling; native smooth-scroll would fight it. */
+    -webkit-text-size-adjust: 100%;
+    scrollbar-width: none;                 /* Lenis owns the scroll */
+  }
+  html::-webkit-scrollbar { display: none; }
+
+  body {
+    margin: 0;
+    background: var(--color-base);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* The page never scrolls sideways. Guards every section at every width. */
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, p, figure, blockquote { margin: 0; }
+  ul, ol { margin: 0; padding: 0; list-style: none; }
+  img, video { display: block; max-width: 100%; }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+  a { color: inherit; text-decoration: none; }
+
+  /* The accent, spent where the corpus spends it. */
+  ::selection { background: var(--color-gold); color: var(--color-deep); }
+
+  /* Film grain. Kills banding across the large flat ivory and teal fields and
+     reads as texture rather than as a flat screen - the right register for a
+     brand whose product is material. Fixed, so it never scrolls with content. */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    pointer-events: none;
+    opacity: 0.05;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-gold-deep);
+    outline-offset: 3px;
+  }
+  .on-deep :focus-visible { outline-color: var(--color-gold); }
+}
+
+@layer components {
+  /* --- Type registers ----------------------------------------------------
+     Two registers with OPPOSITE tracking rules. Both are correct.          */
+
+  .display {
+    font-family: var(--font-display);
+    font-weight: 400;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  /* 12px, uppercase, +.1em. The highest-frequency style on the page. */
+  .caption {
+    font-size: var(--text-caption);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    line-height: 1.2;
+    font-weight: 500;
+  }
+
+  .lede {
+    font-size: var(--text-body-lg);
+    line-height: 1.5;
+    max-width: var(--measure);
+    text-wrap: pretty;
+  }
+
+  /* --- Layout ------------------------------------------------------------ */
+
+  .shell {
+    width: 100%;
+    max-width: 1680px;
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  .section {
+    padding-block: var(--section-y);
+  }
+
+  /* --- The "A" ------------------------------------------------------------
+     The logo's A has no crossbar - an apex with an angled cut, and the only
+     distinctive shape in the identity. Reused as the eyebrow glyph so the
+     page reads as drawn FROM the brand rather than applied to it.          */
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75em;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 0.6em;
+    height: 0.6em;
+    flex: none;
+    background: currentColor;
+    /* apex, angled cut on the right - the mark's own geometry */
+    clip-path: polygon(50% 0%, 100% 100%, 78% 100%, 50% 42%, 22% 100%, 0% 100%);
+  }
+
+  /* --- Rules --------------------------------------------------------------
+     Borders are the ink colour at low alpha, never a separate grey.        */
+  .rule { height: 1px; background: var(--color-line); border: 0; }
+  .on-deep .rule { background: var(--color-line-deep); }
+}
+
+@layer utilities {
+  /* Reveal primitives. GSAP overwrites these; they are also the correct
+     static end-state for reduced motion and for no-JS. */
+  .will-reveal { will-change: transform, opacity; }
+}
+
+/* ============================================================================
+   Reduced motion — the page must render complete, static and correct.
+   Lenis is disabled in JS; this handles everything CSS owns.
+   ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

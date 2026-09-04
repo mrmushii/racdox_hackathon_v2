@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#F4F1EA" />
+
+    <title>Heaven Furniture Mart — Bespoke Furniture &amp; Interior Styling, Chattogram</title>
+    <meta name="description" content="Bespoke furniture and interior styling in Agrabad, Chattogram. Sofas, beds, dining sets and custom pieces, designed and built in-house since 2020." />
+
+    <!-- The display face paints the first headline; preloading it removes the
+         swap flash on the one element a stranger reads first. -->
+    <link rel="preload" href="/fonts/instrument-serif-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/inter-tight-var-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <!-- The preload must resolve to the SAME candidate the <picture> picks, or a
+         retina screen downloads two hero images and the real LCP is delayed.
+         imagesizes mirrors the `sizes` in Hero.jsx exactly. -->
+    <link
+      rel="preload"
+      as="image"
+      type="image/avif"
+      imagesrcset="/media/hero-bed-640.avif 640w, /media/hero-bed-1024.avif 1024w, /media/hero-bed-1600.avif 1600w"
+      imagesizes="(min-width: 1024px) 46vw, 92vw"
+      fetchpriority="high"
+    />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Heaven Furniture Mart — Bespoke Furniture &amp; Interior Styling" />
+    <meta property="og:description" content="Designed. Crafted. Customized. Bespoke furniture and interior styling from Agrabad, Chattogram, since 2020." />
+    <meta property="og:image" content="/og.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="en_GB" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="/og.jpg" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
