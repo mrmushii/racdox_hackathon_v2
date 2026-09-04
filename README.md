@@ -64,6 +64,16 @@ npx vercel --prod     # subsequent deploys
 Any static host works — the output is a plain `dist/`, verified to serve
 correctly from a bare static server with no 404s and no JS errors.
 
+`vercel.json` sets three cache rules (JSON has no comments, and Vercel's schema
+rejects unknown keys, so the reasoning lives here):
+
+- `/assets/*` — one year, `immutable`. Vite content-hashes these filenames, so
+  they can never go stale.
+- `/media/*`, `/fonts/*` — one week. Stable, but *not* hashed: re-running the
+  asset pipeline reuses the same filenames, so an immutable year would strand
+  visitors on old media.
+- everything — `nosniff` and a referrer policy.
+
 ## Assets — everything supplied is used
 
 **All 4 videos and all 17 images are on the page.** Three earlier judgements
