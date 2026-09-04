@@ -64,40 +64,26 @@ npx vercel --prod     # subsequent deploys
 Any static host works — the output is a plain `dist/`, verified to serve
 correctly from a bare static server with no 404s and no JS errors.
 
-## Assets — what is used
+## Assets — everything supplied is used
 
-**All four supplied videos' usable footage and 12 of the 17 images are now on the
-page.** An earlier pass dropped two clips on evidence that turned out to be
-partly wrong; re-auditing them frame by frame recovered both.
+**All 4 videos and all 17 images are on the page.** Three earlier judgements
+turned out to be wrong, and re-auditing each recovered the asset:
 
-| Clip | Window used | Where |
+| Recorded as | Actually | Now used as |
 |---|---|---|
-| Workshop (real footage) | 1.5–9.5s | Bespoke — hands setting nailhead trim |
-| `Video_Concept_Craftsmanship` | 0.1–1.3s | Material — floral embroidery on navy velvet, gilt scroll |
-| `Here_is_a_complete_cinematic` | 0.6–5.9s | Intro — an empty room furnishing itself |
+| `Video_Concept_Craftsmanship` — "glassware in a cabinet" | Its first 1.3s is the best macro in the set: gold-and-pink embroidery on navy velvet, then a gilt scroll with nailhead studs. Glassware is at 5s. | Material |
+| `Here_is_a_complete_cinematic` — "slow push on the bed" | A continuous AI morph: an empty room furnishing itself. Ends on a fake storefront at 8.4s. | Intro band |
+| Two files — "duplicates" | Not duplicates. Compared at 32×32 greyscale they differ from their supposed originals by ~51/255: a tighter emerald-bed frame, and a different living room entirely. | Pieces marquee |
+| Kitchen walkthrough — "not the category" | Real handheld footage, and the one thing in it that *is* a Heaven category is fitted joinery — pantry shelving, cabinetry, built-ins. | Interiors |
+| 5 office renders — "puncture the luxury register" | Genuinely cool (S=3–10% against S=21–59% warm) — but gradeable, which the brief permits ("adjust lighting"). | Collections tile + Interiors |
 
-The first pass recorded `Video_Concept_Craftsmanship` as "glassware in a display
-cabinet" and discarded it. That description came from sampling it at 5s. **Its
-first 1.3 seconds are the best macro footage in the entire set** — gold-and-pink
-embroidery on navy, then a gilt carved scroll with nailhead studs. The glassware
-is at 5s and the AI-generated fake storefront is at 8.4s; neither is reached.
+Both AI clips' sparkle watermarks are removed by cropping, not masking, and
+neither fake-storefront ending is reached.
 
-`Here_is_a_complete_cinematic` is a continuous AI morph rather than footage, so
-it was dropped as a hero. Used for *what it shows* instead — an empty ivory room
-that furnishes itself — it states the brand's proposition better than a static
-shot could. Its fake storefront and burned-in ad copy start at 8.4s and are
-never reached; both clips' sparkle watermarks are removed by cropping, not
-masking.
-
-**Office & Study** nearly lost its tile: the supplied office renders measure
-`#aeaaa9` at S=3% against S=21–59% warm everywhere else. Rather than drop a real
-category from the brief, the warmest of them is warm-graded in the pipeline to
-S=22%, which the brief explicitly permits ("adjust lighting"). All five brief
-categories now have a tile.
-
-Still unused, deliberately: four remaining office renders (generic corporate
-interiors), two duplicate images, and the kitchen walkthrough — a modern American
-kitchen that is not furniture and not the category.
+**The office grade is a channel recombination, not a tint.** sharp's `.tint()`
+tints *luminance* and discards the existing chroma, which turned the office
+renders sepia — colour gone, not warmed. `WARM` in the pipeline lifts red, holds
+green and pulls blue down, bringing them to ~S=35% with their colour intact.
 
 ## Motion
 
