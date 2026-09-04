@@ -104,12 +104,21 @@ green and pulls blue down, bringing them to ~S=35% with their colour intact.
 | Hero | Masked `SplitText` line reveal, gated on `document.fonts.ready`; panel parallax |
 | Intro | Scroll-linked word-by-word fill, then a room furnishing itself |
 | Collections | Staggered entrance, slow hover scale inside `overflow:hidden` |
-| **Bespoke** | **The signature** — pinned four-step scrub, one step at a time |
+| **Bespoke** | **The signature** — pinned four-step scrub, one step at a time. Runs at every width, including phones. |
 | Material | Macro loop + drift |
 | CTA | Fill wipe from the left edge |
 
 Everything is 0.6–1.0s on `easeInOutSine` — roughly three times slower than the
 studio corpus. Symmetric easing makes things *settle*; furniture is heavy.
+
+**All of it runs on mobile**, video included. Two earlier decisions were wrong
+about that and both read as "it's broken on my phone": video was withheld below
+`md` on battery grounds, so a phone saw four still images where the design has
+motion; and the Bespoke pin was gated to `>=1024px`, so the page's signature
+interaction — the thing it is meant to be remembered for — was absent on the
+devices most people use. The pin now runs at every width with a shorter scrub
+distance and a 16:9 video band, verified to fit the viewport at ten sizes from
+360x740 to 1920x1080. Only `prefers-reduced-motion` still takes the static path.
 
 There is **no preloader** in the blocking sense. A real one runs 2.5–3.5s and
 spends a tenth of the brief's 30-second comprehension budget on a spinner; none

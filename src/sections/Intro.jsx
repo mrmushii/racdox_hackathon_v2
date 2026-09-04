@@ -41,9 +41,14 @@ export default function Intro() {
           ease: 'none',
           stagger: 1, // distributed across the scroll distance, not seconds
           scrollTrigger: {
-            trigger: root.current,
-            start: 'top 68%',
-            end: 'bottom 72%',
+            // Trigger on the TEXT, not the section. The section also contains
+            // the full-bleed room band, which makes it ~5x the height of the
+            // manifesto — anchoring to it stretched the fill across all of that,
+            // so the words were still dim while you were reading them and only
+            // completed as the text left the screen.
+            trigger: '.manifesto',
+            start: 'top 85%',
+            end: 'bottom 55%',
             scrub: true,
           },
         });

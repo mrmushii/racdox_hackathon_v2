@@ -11,10 +11,15 @@ import Picture from './Picture.jsx';
  *  - It is not fetched until it is near the viewport. An autoplaying <video> is
  *    fetched eagerly by the browser, which would put ~1 MB of below-the-fold
  *    media on the critical path.
- *  - Below `md` it is replaced by its poster still. Autoplay video on a phone
- *    costs battery and bandwidth for no gain — swap the media, don't scale it.
- *  - Under reduced motion it is replaced by its poster still as well, so the
- *    page renders complete and static.
+ *  - Under reduced motion it is replaced by its poster still, so the page
+ *    renders complete and static.
+ *
+ * It plays on phones too. An earlier version withheld video below `md` on
+ * battery and bandwidth grounds, which meant a phone saw four still images
+ * where the design has motion — the saving was real but it read as broken, and
+ * the clips are 225-426 KB and only fetched once scrolled to. iOS autoplay
+ * needs `muted` + `playsInline`, both set below; where the OS still refuses
+ * (Low Power Mode), the poster is what shows, which is the old behaviour.
  *
  * `poster` may name a different image than the clip's generated poster frame —
  * the Material section uses a high-resolution crop from a still, because a
@@ -34,7 +39,7 @@ export default function AmbientVideo({
 
   const still = poster || v.poster;
   const box = useRef(null);
-  const motionOK = useMediaQuery('(min-width: 768px) and (prefers-reduced-motion: no-preference)');
+  const motionOK = useMediaQuery('(prefers-reduced-motion: no-preference)');
   const [nearby, setNearby] = useState(eager);
 
   useEffect(() => {

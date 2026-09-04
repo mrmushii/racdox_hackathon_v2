@@ -36,10 +36,18 @@ export default function Bespoke() {
 
       if (reduced()) return; // static stacked list is the markup default
 
+      // The pin runs at EVERY width. It was gated to >=1024px on the grounds
+      // that pinning a scrubbed section on a short viewport eats the screen —
+      // true of the old layout, which showed all four steps at once and did not
+      // fit. Showing one step at a time made the stage compact enough for a
+      // phone, and gating it meant the page's signature interaction was absent
+      // on exactly the devices most people would see it on.
       const mm = gsap.matchMedia();
 
-      mm.add('(min-width: 1024px)', () => {
-        // Stack the panels so only the active one occupies the well.
+      mm.add('(min-width: 1024px)', () => buildPin(1.0));
+      mm.add('(max-width: 1023px)', () => buildPin(0.7));
+
+      function buildPin(scale) {
         gsap.set(panels, { position: 'absolute', inset: 0 });
         gsap.set(panels.slice(1), { opacity: 0, yPercent: 8 });
         gsap.set(ticks.slice(1), { scaleX: 0 });
@@ -48,15 +56,16 @@ export default function Bespoke() {
           scrollTrigger: {
             trigger: root.current,
             start: 'top top',
-            end: `+=${(n - 1) * 90}%`,
+            // Shorter scrub distance on a phone: the same four steps, but less
+            // thumb travel to get through them.
+            end: `+=${Math.round((n - 1) * 90 * scale)}%`,
             pin: '.pin-stage',
             scrub: 1,
             anticipatePin: 1,
+            invalidateOnRefresh: true,
           },
         });
 
-        // power1.inOut for scrubbed motion: the user is driving, so it must be
-        // gentle. Sharp easing under scrub reads as lag.
         // The outgoing step clears before the incoming arrives. A 1:1 crossfade
         // leaves both at ~50% at the midpoint, which reads as doubled text.
         panels.forEach((panel, i) => {
@@ -66,7 +75,9 @@ export default function Bespoke() {
             .to(panel, { opacity: 1, yPercent: 0, duration: 0.55, ease: 'power1.out' }, at + 0.45)
             .to(ticks[i], { scaleX: 1, duration: 1, ease: 'power1.inOut' }, at);
         });
-      });
+
+        return () => tl.scrollTrigger?.kill();
+      }
 
       return () => mm.revert();
     },
@@ -75,14 +86,18 @@ export default function Bespoke() {
 
   return (
     <section id="bespoke" ref={root} className="on-deep bg-deep text-on-deep">
-      <div className="pin-stage flex min-h-svh flex-col justify-center overflow-hidden py-[clamp(3.5rem,7vw,5.5rem)]">
-        <div className="shell grid grid-cols-12 items-center gap-x-[clamp(1rem,2vw,2rem)] gap-y-xl">
+      <div className="pin-stage flex min-h-svh flex-col justify-center overflow-hidden py-[clamp(2rem,7vw,5.5rem)]">
+        <div className="shell grid grid-cols-12 items-center gap-x-[clamp(1rem,2vw,2rem)] gap-y-md lg:gap-y-xl">
           {/* 9:16 — the native shape of the footage and of a phone. Capped
               against viewport height so the pinned stage never overflows. */}
           <div className="col-span-12 sm:col-span-7 sm:col-start-3 lg:col-span-4 lg:col-start-1">
+            {/* 16:9 band on a phone so the pinned stage fits the viewport;
+                the clip's native 9:16 from sm up. object-cover crops to centre,
+                which is where the hands and the frame are. */}
             <div
-              className="relative mx-auto overflow-hidden border border-line-deep"
-              style={{ aspectRatio: `${v.width} / ${v.height}`, maxHeight: '64svh' }}
+              className="relative mx-auto aspect-[16/9] w-full overflow-hidden border border-line-deep
+                         sm:aspect-[9/16] sm:w-[min(100%,calc(34svh*9/16))]
+                         lg:w-[min(100%,calc(60svh*9/16))]"
             >
               <AmbientVideo
                 name="craft-process"
@@ -96,10 +111,10 @@ export default function Bespoke() {
 
           <div className="col-span-12 lg:col-span-7 lg:col-start-6">
             <p className="caption eyebrow text-gold">{bespoke.eyebrow}</p>
-            <h2 className="display mt-md text-display-md">{bespoke.headline}</h2>
+            <h2 className="display mt-sm text-display-md lg:mt-md">{bespoke.headline}</h2>
 
             {/* Progress: four segments, one per step. */}
-            <ol className="mt-xl flex gap-sm" aria-hidden="true">
+            <ol className="mt-md flex gap-sm lg:mt-xl" aria-hidden="true">
               {bespoke.steps.map((s) => (
                 <li key={s.n} className="h-px flex-1 bg-line-deep">
                   <span className="tick-fill block h-full origin-left bg-gold" />
@@ -109,9 +124,9 @@ export default function Bespoke() {
 
             {/* The well. Fixed height on desktop so crossfading panels cannot
                 shift layout; a plain stacked list below lg. */}
-            <div className="relative mt-lg lg:h-[clamp(15rem,26svh,17rem)]">
+            <div className="relative mt-lg h-[clamp(10.5rem,23svh,17rem)]">
               {bespoke.steps.map((s) => (
-                <article key={s.n} className="step-panel mb-xl lg:mb-0">
+                <article key={s.n} className="step-panel">
                   <div className="flex items-baseline gap-md">
                     <span className="caption text-gold">{s.n}</span>
                     <h3 className="display text-display-lg">{s.name}</h3>
@@ -121,7 +136,7 @@ export default function Bespoke() {
               ))}
             </div>
 
-            <div className="mt-xl">
+            <div className="mt-md lg:mt-xl">
               <CTAButton />
             </div>
           </div>
