@@ -1,30 +1,33 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { initSmoothScroll } from './lib/smooth-scroll.js';
 import { ScrollTrigger } from './lib/gsap.js';
+import { initMarkDrop } from './lib/mark-drop.js';
 
 import BrandIntro from './components/BrandIntro.jsx';
 import Nav from './components/Nav.jsx';
 import Hero from './sections/Hero.jsx';
 import Intro from './sections/Intro.jsx';
-import Collections from './sections/Collections.jsx';
+import Work from './sections/Work.jsx';
 import Bespoke from './sections/Bespoke.jsx';
 import Material from './sections/Material.jsx';
-import Interiors from './sections/Interiors.jsx';
-import Pieces from './sections/Pieces.jsx';
-import Trust from './sections/Trust.jsx';
 import Proof from './sections/Proof.jsx';
+import Visit from './sections/Visit.jsx';
 import CTA from './sections/CTA.jsx';
 import Footer from './sections/Footer.jsx';
 
 export default function App() {
+  const footerRef = useRef(null);
+
   useEffect(() => {
     const stop = initSmoothScroll();
     // Trigger positions are computed against document height. Images finishing
     // after first paint change that height, so recompute once everything lands.
     const refresh = () => ScrollTrigger.refresh();
     window.addEventListener('load', refresh);
+    const releaseMark = initMarkDrop(footerRef.current);
     return () => {
       window.removeEventListener('load', refresh);
+      releaseMark();
       stop();
     };
   }, []);
@@ -42,16 +45,14 @@ export default function App() {
       <main>
         <Hero />
         <Intro />
-        <Collections />
+        <Work />
         <Bespoke />
         <Material />
-        <Interiors />
-        <Pieces />
-        <Trust />
         <Proof />
+        <Visit />
         <CTA />
       </main>
-      <Footer />
+      <Footer innerRef={footerRef} />
     </>
   );
 }

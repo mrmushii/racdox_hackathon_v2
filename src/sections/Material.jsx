@@ -1,22 +1,27 @@
 import { useRef } from 'react';
 import { useGSAP } from '@gsap/react';
-import { gsap, reduced } from '../lib/gsap.js';
+import { gsap, reduced, EASE_OUT } from '../lib/gsap.js';
 import { material } from '../content/brand.js';
 import AmbientVideo from '../components/AmbientVideo.jsx';
+import RevealMask from '../components/RevealMask.jsx';
 
 /**
- * Texture at 1:1 — a full-bleed macro of real craftsmanship.
+ * Craft at 1:1, revealed by the reader's own scroll.
  *
- * No analogue exists in either reference corpus, because none of those brands
- * sells a physical object. This is the most on-brief, least-seen section
- * available.
+ * The clip is a V-bit chamfering a panel — the machine half of the answer, and
+ * the half a bespoke claim usually dodges. Everything else on this page argues
+ * that the work is done by hand; this argues that "custom" does not therefore
+ * mean approximate. Both halves are true and the section says so in one line.
  *
- * The clip is the first 2.5s of the "craftsmanship" file — gilt carving on blue
- * velvet, nailhead studs, a light sweep across tufted emerald. An earlier pass
- * recorded that file as glassware and discarded it; that description came from
- * sampling it at 5s. Its still is a 1122px crop from a photograph rather than a
- * frame grabbed from 720p video, which is what made the previous version of
- * this section look soft.
+ * It sits on ivory rather than on the deep ground, for two reasons. The clip's
+ * own palette is already the brand's — pale board, warm sawdust, brown shadow —
+ * so it needs no grade and no dark surround to sit right. And the section
+ * before it is deep teal: two dark sections back to back would push the page
+ * past the ~20% teal the palette is built around.
+ *
+ * The mask is the second of the three ported interactions. Opening a frame is
+ * the right gesture here specifically because the subject is a cut being made:
+ * the frame opens as the groove does.
  */
 export default function Material() {
   const root = useRef(null);
@@ -24,56 +29,54 @@ export default function Material() {
   useGSAP(
     () => {
       if (reduced()) return;
-
       gsap.from('.spec', {
         y: 24,
         opacity: 0,
         duration: 0.9,
-        ease: 'power2.out',
+        ease: EASE_OUT,
         stagger: 0.12,
-        scrollTrigger: { trigger: root.current, start: 'top 65%' },
-      });
-
-      // Slow drift. Under 8% displacement; more looks broken.
-      gsap.to('.macro-inner', {
-        yPercent: -7,
-        ease: 'none',
-        scrollTrigger: { trigger: root.current, start: 'top bottom', end: 'bottom top', scrub: 1.5 },
+        scrollTrigger: { trigger: '.spec-list', start: 'top 80%' },
       });
     },
     { scope: root }
   );
 
   return (
-    <section ref={root} className="on-deep relative bg-deep text-on-deep">
-      <div className="grid grid-cols-12 items-stretch">
-        <div className="relative col-span-12 h-[54svh] overflow-hidden lg:col-span-7 lg:h-auto lg:min-h-[88svh]">
-          <AmbientVideo
-            name="craft-detail"
-            poster="material-goldleaf"
-            alt="Gilt carving, nailhead trim and tufted velvet on a bespoke frame"
-            sizes="(min-width: 1024px) 58vw, 100vw"
-            className="macro-inner absolute inset-0 h-[114%] w-full"
-            mediaClassName="h-full w-full object-cover"
-          />
+    <section id="material" ref={root} className="section bg-base">
+      <div className="shell grid grid-cols-12 items-center gap-x-[clamp(1rem,2vw,2rem)] gap-y-2xl">
+        <div className="col-span-12 lg:col-span-5">
+          <p className="caption eyebrow text-ink-muted">{material.eyebrow}</p>
+          {/* display-md, not lg. This is the one two-sentence headline on the
+              page, and at display-lg it ran to three cramped lines in a
+              five-column box. The smaller step also keeps the page's single
+              largest-type moment where it belongs — the footer mark. */}
+          <h2 className="display mt-md text-display-md">{material.headline}</h2>
+          <p className="lede mt-lg text-ink-muted">{material.lede}</p>
+
+          <dl className="spec-list mt-xl border-t border-line">
+            {material.specs.map((s) => (
+              <div key={s.k} className="spec flex justify-between gap-md border-b border-line py-md">
+                <dt className="caption text-ink-muted">{s.k}</dt>
+                <dd className="caption text-ink">{s.v}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
 
-        <div className="col-span-12 flex items-center px-[var(--gutter)] py-2xl lg:col-span-5 lg:pl-2xl">
-          <div>
-            <p className="caption eyebrow text-gold">{material.eyebrow}</p>
-            <h2 className="display mt-md text-display-lg">{material.headline}</h2>
-            <p className="lede mt-lg text-muted-deep">{material.lede}</p>
-
-            <dl className="mt-xl border-t border-line-deep">
-              {material.specs.map((s) => (
-                <div key={s.k} className="spec flex justify-between gap-md border-b border-line-deep py-md">
-                  <dt className="caption text-muted-deep">{s.k}</dt>
-                  <dd className="caption text-on-deep">{s.v}</dd>
-                </div>
-              ))}
-            </dl>
+        <RevealMask
+          className="col-span-12 lg:col-span-6 lg:col-start-7"
+          caption={material.caption}
+        >
+          <div className="aspect-square w-full">
+            <AmbientVideo
+              name="cnc-score"
+              alt="A V-bit router tracing a chamfered groove into a timber panel"
+              sizes="(min-width: 1024px) 46vw, 92vw"
+              className="h-full w-full"
+              mediaClassName="h-full w-full object-cover"
+            />
           </div>
-        </div>
+        </RevealMask>
       </div>
     </section>
   );

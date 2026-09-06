@@ -30,6 +30,7 @@ export default function Nav() {
   const sheet = useRef(null);
   const trigger = useRef(null);
   const closeBtn = useRef(null);
+  const wasOpen = useRef(false);
 
   const [open, setOpen] = useState(false);
   const [solid, setSolid] = useState(false);
@@ -42,20 +43,34 @@ export default function Nav() {
   useGSAP(
     () => {
       let last = 0;
+      let hidden = false;
       const st = ScrollTrigger.create({
         start: 0,
         end: 'max',
         onUpdate: (self) => {
           const y = self.scroll();
           setSolid(y > window.innerHeight * 0.55);
-          const hide = y > 120 && y > last && y - last > 2;
+
+          // Direction, not position. The bar only changes state on a deliberate
+          // move of more than 2px: Lenis keeps firing onUpdate as it eases to a
+          // stop, and treating those sub-pixel settle deltas as "not scrolling
+          // down" used to drop the bar back in every time the visitor paused.
+          // Under the threshold, `last` is left alone too, so a slow scroll
+          // still accumulates into a real direction instead of being swallowed.
+          const dy = y - last;
+          if (Math.abs(dy) <= 2) return;
+          last = y;
+
+          const next = y > 120 && dy > 0;
+          if (next === hidden) return;
+          hidden = next;
+
           gsap.to(bar.current, {
-            yPercent: hide ? -140 : 0,
+            yPercent: hidden ? -140 : 0,
             duration: 0.2,
             ease: 'power2.out',
             overwrite: true,
           });
-          last = y;
         },
       });
       return () => st.kill();
@@ -107,12 +122,17 @@ export default function Nav() {
   useEffect(() => {
     lockScroll(open);
     if (open) {
+      wasOpen.current = true;
       // The timeline's visibility:visible lands when the tween plays, which is
       // a tick after this effect. Focusing a still-hidden element fails
       // silently, so make it focusable here rather than relying on the tween.
       gsap.set(sheet.current, { visibility: 'visible' });
       closeBtn.current?.focus();
-    } else {
+    } else if (wasOpen.current) {
+      // Only when returning FROM the menu. This effect also runs on mount with
+      // open=false, and focusing the trigger there put a focus ring on the menu
+      // button on every page load.
+      wasOpen.current = false;
       trigger.current?.focus({ preventScroll: true });
     }
 
@@ -161,7 +181,12 @@ export default function Nav() {
           </a>
 
           <div className="flex items-center gap-[clamp(0.75rem,1.5vw,1.5rem)]">
-            <CTAButton />
+            {/* Hidden below sm: at 390px the wordmark, the pill and Menu came to
+                more than the viewport, and body{overflow-x:hidden} was quietly
+                clipping "Menu" rather than the layout being right. Nothing is
+                lost — the hero CTA is above the fold on a phone, and the menu
+                sheet carries its own. */}
+            <CTAButton className="hidden sm:inline-flex" />
             <button
               ref={trigger}
               type="button"

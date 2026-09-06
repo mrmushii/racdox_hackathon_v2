@@ -9,9 +9,11 @@ export default function CTA() {
   return (
     <section id="cta" className="on-deep bg-deep py-2xl text-on-deep">
       <div className="shell">
-        <div className="max-w-[18ch]">
-          <h2 className="display text-display-lg">{cta.headline}</h2>
-        </div>
+        {/* The measure is on the H2, not on a wrapper. `ch` resolves against the
+            element's OWN font, so 18ch on a div inheriting 15px sans came out at
+            156px — and the 86px serif headline inside it broke one word per
+            line, 410px tall. On the h2 itself it measures the serif. */}
+        <h2 className="display max-w-[18ch] text-display-lg">{cta.headline}</h2>
         <p className="lede mt-lg text-muted-deep">{cta.lede}</p>
 
         <div className="mt-xl">

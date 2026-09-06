@@ -14,7 +14,8 @@
     "og": "node scripts/og.mjs",
     "audit": "node scripts/audit.mjs",
     "perf": "node scripts/perf.mjs",
-    "fps": "node scripts/fps.mjs"
+    "fps": "node scripts/fps.mjs",
+    "map": "node scripts/build-map.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

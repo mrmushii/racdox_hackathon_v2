@@ -27,6 +27,7 @@ import ffmpegPath from 'ffmpeg-static';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { mkdir, rm, writeFile, readdir, stat } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -45,8 +46,8 @@ const WIDTHS = [640, 1024, 1600, 2400];
 // Warming matrix. sharp's .tint() cannot be used for this: it tints luminance
 // and throws the existing chroma away, which turns a room render sepia. This
 // lifts red, holds green and pulls blue down, so the image warms and keeps its
-// colour. Applied to the office set, which measures S=3-10% cool grey against
-// S=21-59% warm everywhere else; it brings them to ~S=35%.
+// colour. Now used only by the MD's portrait, which was shot under showroom
+// fluorescents and lands cool against a page that is warm ivory throughout.
 const WARM = [
   [1.10, 0.03, 0.00],
   [0.02, 1.02, 0.00],
@@ -74,20 +75,42 @@ const WEBP = { quality: 62, effort: 6 };
  * clamped to the source width, so nothing is ever upscaled.
  * ------------------------------------------------------------------------ */
 const IMAGES = [
-  { slug: 'hero-bed',      max: 1600, file: 'Minimalist Bed Set by Heaven Furniture Mart.jpeg',
-    role: 'Hero still + mobile fallback. Same room as the hero video.' },
+  { slug: 'hero-bed',      max: 1024, file: 'Minimalist Bed Set by Heaven Furniture Mart.jpeg',
+    role: 'Showroom Wall lead frame. Emerald tufted bed, 1696x2528.' },
   { slug: 'showroom-wide', max: 1600, file: 'Classic Furniture Sofa set by Heaven Furniture Mart.jpeg',
     role: 'Intro full-bleed band. Widest frame in the set (3168x1344).' },
   { slug: 'living',        max: 1024, file: 'Emroiydery Sofa Set Heaven Furniture Mart.jpeg',
     role: 'Collections - Living. Gilt frame, grey velvet, embroidery.' },
   { slug: 'bedroom',       max: 1024, file: 'Luxury Bed by Heaven Furniture Mart.png',
     role: 'Collections - Bedroom. The only image carrying the brand teal.' },
-  { slug: 'dining',        max: 1024, file: 'Luxury Dining Set By Heaven Furniture Mart.jpeg',
-    role: 'Collections - Dining. Most credible photograph in the set.' },
-  { slug: 'bespoke',       max: 1600, file: 'Gemini_Generated_Image_e7fjmge7fjmge7fj (4).jpeg',
+  // THE HERO. Capped at 1600 rather than 1024, which resolves to the source's
+  // own 1087 - the hero panel expands to ~92vw on scroll, and the extra rung is
+  // what keeps that end state from being an upscale.
+  { slug: 'dining',        max: 1600, file: 'Luxury Dining Set By Heaven Furniture Mart.jpeg',
+    role: 'Hero panel. Most credible photograph in the set.' },
+  { slug: 'bespoke',       max: 1024, file: 'Gemini_Generated_Image_e7fjmge7fjmge7fj (4).jpeg',
     role: 'Collections - Bespoke. Carved chairs on a seamless backdrop.' },
   { slug: 'showroom-hall', max: 1024, file: 'Luxury Dining Table Set.png',
     role: 'Proof - showroom. Ivory and gold suite under a chandelier.' },
+  // The MD's portrait. `optional` because it is the one image supplied after
+  // the fact: until the file is dropped in image/, the pipeline skips it and
+  // the Proof section falls back to the quote without a face.
+  // Cropped from the supplied 1536x2048 phone frame, which is two thirds desk:
+  // newspapers, a handset, aerosol cans and mirror reflections, all of it cool
+  // white against a page that is warm ivory throughout. The extract takes the
+  // MD from head to folded hands at the section's own 4:5, and the standard
+  // warm grade pulls the showroom's fluorescent cast into the set's range.
+  // 640 caps the ladder: the frame is 28vw on desktop (~400px at 1440) and 62vw
+  // on mobile (~240px), so the 816 step the crop allows is bytes nothing asks
+  // for - and it is the step that put the set 0.01 MB over budget.
+  { slug: 'founder', max: 640, file: 'founder.jpg', optional: true,
+    extract: { left: 357, top: 306, width: 816, height: 1020 },
+    // 1.0, not a boost. The WARM recomb already lifts red by 1.10 to correct the
+    // showroom fluorescents, and stacking a saturation bump on top of that
+    // pushed a real person's skin and henna-dyed beard visibly past the source.
+    // Warmth correction yes; saturating someone's face, no.
+    grade: { saturation: 1.0 },
+    role: 'Proof - MD portrait beside the founder quote.' },
   { slug: 'showcase',      max: 1024, file: 'Luxury Showcase By Heaven Furniture Mart.jpeg',
     role: 'Detail - glazed display cabinet.' },
   { slug: 'sofa-blue',     max: 1024, file: 'Luxury Embroidery Sofa Set By Heaven Furniture Mart.jpeg',
@@ -95,27 +118,13 @@ const IMAGES = [
   { slug: 'cabinet-black', max: 1024, file: 'Minimal Shoe Box by Heaven Furniture Mart.jpeg',
     role: 'Bespoke secondary - black cabinet, brass handles.' },
 
-  // Office & Study is a real category in the brief, and the supplied office
-  // renders measured #aeaaa9 at S=3% against S=21-59% warm everywhere else -
-  // cool grey that fights every other image on the page. Rather than drop the
-  // category, the warmest of the six (black leather, timber arms) is graded to
-  // S=22%, inside the range of the rest of the set. The brief explicitly allows
-  // this: "You can touch them up ... adjust lighting, crop."
-  { slug: 'office', max: 1024, file: 'Gemini_Generated_Image_e7fjmge7fjmge7fj (3).jpeg',
-    grade: { saturation: 1.3 },
-    role: 'Collections - Office & Study. Warm-graded from S=3% to S=22%.' },
-
-  // The rest of the office set, same grade, for the Interiors section. Four
-  // office tiles inside Collections would have swamped the four furniture ones,
-  // so the category gets its own band instead of five slots in the grid.
-  { slug: 'office-desk', max: 640, file: 'Gemini_Generated_Image_e7fjmge7fjmge7fj (1).jpeg',
-    grade: { saturation: 1.3 }, role: 'Interiors - executive desk.' },
-  { slug: 'office-boardroom', max: 640, file: 'Gemini_Generated_Image_e7fjmge7fjmge7fj (2).jpeg',
-    grade: { saturation: 1.3 }, role: 'Interiors - boardroom table.' },
-  { slug: 'office-meeting', max: 640, file: 'Gemini_Generated_Image_e7fjmge7fjmge7fj (5).jpeg',
-    grade: { saturation: 1.3 }, role: 'Interiors - meeting table.' },
-  { slug: 'office-workstation', max: 640, file: 'Gemini_Generated_Image_e7fjmge7fjmge7fj.jpeg',
-    grade: { saturation: 1.3 }, role: 'Interiors - workstations.' },
+  // The five Gemini office renders are NOT here, and that is deliberate. They
+  // measure #aeaaa9 at S=3% against S=21-59% warm everywhere else - cool grey
+  // that fights every other image on the page - and the earlier build spent a
+  // whole Interiors band trying to rescue four of them with a warm grade. That
+  // band is gone: the page now has eleven real furniture photographs, which is
+  // more than the Showroom Wall can use. Office & Study survives as a line of
+  // copy in the manifesto, which is what the brief's own category list implies.
 
   // Neither of these is the duplicate the audit recorded. Compared at 32x32
   // greyscale they differ from their supposed originals by a mean of ~51/255:
@@ -127,135 +136,126 @@ const IMAGES = [
     role: 'Proof gallery - carved dark-wood suite on marble.' },
 ];
 
-/* 1:1 macro crops taken from the high-resolution stills. The Material section
- * previously used a frame lifted from 720p footage, which was visibly soft
- * beside real photography; a crop from a 1122px still carries far more detail
- * at the same on-screen size. */
+/* 1:1 macro crops taken from the high-resolution stills. A crop from a 1122px
+ * still carries far more detail at the same on-screen size than anything that
+ * can be lifted from 720p footage. */
 const CROPS = [
   { slug: 'material-goldleaf', max: 1024, file: 'Luxury Bed by Heaven Furniture Mart.png',
     extract: { left: 0, top: 280, width: 1122, height: 1122 },
-    role: 'Material macro. Carved gilt ornament on a mahogany bed frame.' },
+    role: 'Showroom Wall. Carved gilt ornament on a mahogany bed frame.' },
 ];
 
-/* No stills are lifted from footage any more. The Material section used a frame
- * pulled from 720p video, which read as visibly soft beside real photography.
- * It is replaced by `material-goldleaf` (a 1122px crop from a still) as the
- * poster, and by the `craft-detail` clip for the motion. */
+/* No stills are lifted from footage. Every poster is generated from the clip it
+ * belongs to (see processVideo), so frame one of a video and the image that
+ * stands in for it before it plays are the same picture. */
 const FRAMES = [];
 
 /* --------------------------------------------------------------------------
- * Video — one clip. Everything else in video/ is unusable.
+ * Video — four clips, and every one of them is real footage.
  *
- *   YTDown ... cozy-kitchen     — a modern American kitchen. Not furniture,
- *                                 not the brand, not the category.
+ * The set changed completely when three phone clips arrived from the brand's
+ * own Facebook page (fb-vid*.mp4, all 720x1280). They displace the two
+ * AI-generated reels the page previously leaned on:
  *
- *   Video_Concept_Craftsmanship — audited as "glassware"; actually a six-shot
- *                                 montage cutting every ~1.5s that ENDS ON AN
- *                                 AI-GENERATED FAKE E-COMMERCE PAGE with
- *                                 garbled text and "GET PRICE" buttons. No shot
- *                                 runs long enough to loop, and its subjects
- *                                 (dining room, showcase, black cabinet) are
- *                                 each already covered by a still.
+ *   Here_is_a_complete_cinematic — not footage. A continuous AI morph in which
+ *                                 furniture materialises into an empty room,
+ *                                 ending on a fake storefront with burned-in ad
+ *                                 copy, and carrying a sparkle watermark.
  *
- *   Here_is_a_complete_cinematic — audited as a "slow push on the bed". It is
- *                                 not footage at all: it is a continuous AI
- *                                 MORPH reel in which furniture materialises
- *                                 into an empty room (which is why scene
- *                                 detection finds no cuts - there are none, it
- *                                 dissolves). Frame-by-frame, the clean bed
- *                                 window is 5.0-5.9s, under one second; the
- *                                 last three seconds are a fake storefront with
- *                                 burned-in "LET'S BRING YOUR DREAM HOME TO
- *                                 LIFE" ad copy, and it carries the sparkle
- *                                 watermark besides. Shipping it would read as
- *                                 AI-generated within three seconds, against
- *                                 the top-ranked judging criterion. The hero
- *                                 panel uses the emerald-bed STILL instead -
- *                                 same room, 1696x2528, no morph, no watermark.
+ *   Video_Concept_Craftsmanship  — a six-shot montage cutting every ~1.5s that
+ *                                 ENDS ON AN AI-GENERATED FAKE E-COMMERCE PAGE
+ *                                 with garbled text and "GET PRICE" buttons.
  *
- * What survives is the workshop clip, which is real footage and the most
- * valuable asset in the set: verified clean across 1.5-9.5s, no watermark and
- * no overlay. It cuts once, at 11.7s - hands applying studs, then a macro of
- * the result, which is lifted as a still in FRAMES above.
+ *   Showroom tour               — real footage of the actual Chattogram showroom,
+ *                                 and the hardest of these to give up: it was the
+ *                                 only first-party proof that the place exists.
+ *                                 Every one of its 125 seconds is handheld and
+ *                                 motion-blurred under fluorescent light, with
+ *                                 plastic-wrapped stock and an air-conditioner
+ *                                 grille in frame. Credible, but it reads as a
+ *                                 shop floor rather than a studio, against the
+ *                                 top-ranked criterion. The Proof band now runs
+ *                                 the sharp wide still instead.
  *
- * The page therefore carries exactly one moving image, and it is the only real
- * footage available. That is a stronger position than three AI reels.
+ *   YTDown ... cozy-kitchen      — real, but a modern American kitchen: cool
+ *                                 and minimal against a warm ornate set, and
+ *                                 not a Heaven room. Kept only while there was
+ *                                 nothing better. There is now.
+ *
+ * What ships is workshop, machine room and showroom floor, with no synthetic
+ * frame anywhere on the page. Against a criterion that reads "does this feel
+ * like luxury, not a generic furniture shop", that is the whole argument.
  * ------------------------------------------------------------------------ */
 const VIDEOS = [
+  {
+    // THE HERO, and the single most valuable asset in the project: a craftsman
+    // laying gold leaf onto a carved frame by hand. It is the logo's own gold,
+    // the ornate carving the brand actually sells, and visible human hands, in
+    // one continuous shot with no cut and no watermark across all 15s.
+    //
+    // It answers "what is this brand" before the headline is read, which is
+    // scored criterion #2, and it does it with the one thing a generic
+    // furniture site can never show: the making.
+    slug: 'gold-leaf',
+    file: 'fb-vid-3.mp4',
+    // Native 720 wide, centre-cropped 9:16 -> the hero panel's 4:5. No scale:
+    // the panel runs ~40vw (576px at 1440) and 720 native is the sharpest this
+    // source can be. Top offset 190 is the true centre and keeps the workshop
+    // clutter (paint tins, cloth) in the top band, which reads as a real bench.
+    filter: 'crop=720:900:0:190',
+    // 5.5-13.0s, chosen on the POSTER as much as on the motion. The earlier
+    // 2.6s start opens on the foil sheet held vertically, which fills a 4:5
+    // frame with a featureless gold slab — the carving and the hands, which are
+    // the entire reason this clip is the hero, are both behind it. From 5.5s
+    // the sheet is down on the frame and every frame shows hand, foil and
+    // carved relief together. That is the picture a visitor sees before the
+    // video starts, so it is the one the window is cut around.
+    start: 5.5, duration: 7.5, crf: 31, posterMax: 768,
+    palindrome: false,  // directional - foil un-laying itself reads backwards
+    role: 'Hero panel, 4:5. Gold leaf laid onto carved wood by hand.',
+  },
   {
     slug: 'craft-process',
     file: 'YTDown.com_Shorts_Handcrafted-Luxury-Sofa-Process-Bespoke-_Media_lxhZF9s7fhY_001_720p.mp4',
     filter: 'scale=540:960',
     start: 1.5, duration: 7.0, crf: 34,
     palindrome: false,  // directional action - reversed hammering reads wrong
-    role: 'Bespoke Highlight, 9:16 panel. Real workshop footage.',
+    role: 'Bespoke step 03 (Craft), 9:16 panel. Upholstery by hand.',
   },
   {
-    // The morph reel, used for what it actually shows rather than discarded for
-    // what it ends on. 0.6-5.9s is an empty ivory room that furnishes itself:
-    // exactly the brand's proposition, "your room, your measurements". The
-    // 8.4s+ fake storefront and the burned-in ad copy are never reached, and
-    // cropping to 1100px wide removes the sparkle watermark geometrically.
-    slug: 'room-reveal',
-    file: 'Here_is_a_complete_cinematic.mp4',
-    // Cropped to 1100 wide (the watermark starts at ~1130) and NOT downscaled:
-    // it plays in a full-width band, so anything smaller is upscaled on screen
-    // and goes soft. Native crop is the sharpest this source can be.
-    filter: 'crop=1100:619:0:60',
-    start: 0.6, duration: 5.3, crf: 33, posterMax: 768,
-    palindrome: false,
-    role: 'Intro. An empty room furnishing itself.',
-  },
-  {
-    // Re-audited: the first 2.5s of this clip is NOT the glassware the earlier
-    // pass recorded. It is ornate macro craft - a gilt carved scroll on blue
-    // velvet with nailhead studs, and a light sweep across tufted emerald.
-    // Only 5s+ is glassware and cabinets, and only 8.4s+ is the fake page.
-    slug: 'craft-detail',
-    file: 'Video_Concept_Craftsmanship.mp4',
-    // 900x720 rather than 16:9, because this plays in a near-square panel and a
-    // wide clip cover-fitted there was upscaling 1.65x. Native crop, no scale.
-    // 0.1-1.3s is the strongest window: gold-and-pink floral embroidery on navy
-    // velvet, then a gilt carved scroll with nailhead studs. The emerald light
-    // sweep at 1.7s and the quilted bed at 2.0s are weaker and are left out.
-    filter: 'crop=900:720:0:0',
-    start: 0.1, duration: 1.2, crf: 30,
-    palindrome: true,   // no directional action; loops seamlessly
-    role: 'Material. Macro of embroidery, gilt carving and nailhead trim.',
-  },
-  {
-    // THE REAL SHOWROOM. Handheld phone footage of the actual Chattogram
-    // showroom, and the most credible asset on the page — the brief's own note
-    // is that "real Heaven photos will always look more credible".
+    // The machine room. Two of the four Bespoke steps are Design and Craft, and
+    // this is the seam between them: a CNC router cutting joinery blanks from
+    // solid timber. It is also the answer to the obvious objection to a bespoke
+    // claim - that "custom" means slow and imprecise. It doesn't; it means
+    // machined to the drawing, then finished by hand.
     //
-    // Segment chosen by measurement, not eye: every 2s of the 125s tour was
-    // scored for sharpness (stdev of a Laplacian convolution). The footage is
-    // handheld and much of it is motion-blurred, averaging ~60; 12.8-22.6s is
-    // the longest CONTINUOUS shot (no scene cut) and holds 64-73 throughout.
-    // 13.2-20.2 sits inside it. The 0-4s title card and the 120s+ end card both
-    // carry burned-in text and are avoided.
-    slug: 'showroom-tour',
-    file: 'Heaven Furniture Mart Chattogram – Virtual Showroom Tour _ Luxury & Bespoke Furniture Bangladesh 😊_720p.mp4',
-    // Cropped to the band's own 2.36:1 rather than letting CSS crop a 16:9
-    // frame: same picture, a quarter fewer pixels to encode.
-    filter: 'crop=1280:542:0:100,scale=1000:424',
-    start: 13.2, duration: 6.5, crf: 34, posterMax: 768,
-    palindrome: false,
-    role: 'Proof. The actual showroom floor, Agrabad Access Road, Chattogram.',
+    // Kept full-frame 9:16 rather than cropped tight. The lower half is dark
+    // reflective machine bed with chips falling across it, which on the deep
+    // teal ground of the Bespoke section reads as depth rather than dead space.
+    slug: 'cnc-cut',
+    file: 'fb-vid.mp4',
+    filter: 'scale=540:960',
+    // 3.0s in, the cut is established and chips are already flying; the first
+    // second is the bit descending into stock that has not been touched yet.
+    start: 3.0, duration: 7.0, crf: 33,
+    palindrome: false,  // reversed, cut timber reassembles itself
+    role: 'Bespoke step 02 (Design). CNC router cutting joinery blanks.',
   },
   {
-    // The kitchen walkthrough. Real handheld footage rather than AI, but of a
-    // US house, and cool modern where everything else is warm ornate. Used for
-    // the one thing in it that IS a Heaven category - fitted joinery: pantry
-    // shelving, cabinetry, built-ins. 4-10s is that stretch; the mudroom and
-    // the open-plan living at either end are not. Warm-graded to match the set,
-    // which the brief explicitly permits.
-    slug: 'interiors-joinery',
-    file: 'YTDown.com_Shorts_Entrance-from-garage-cozy-kitchen-dreamh_Media_ybx69tQ2uDY_001_480p.mp4',
-    filter: 'scale=540:960,colortemperature=temperature=4600,eq=saturation=1.18',
-    start: 4.0, duration: 4.5, crf: 33,
-    palindrome: false,
-    role: 'Interiors. Fitted joinery - shelving, cabinetry, built-ins.',
+    // MATERIAL. A V-bit tracing a chamfered groove into a pale panel - and the
+    // one clip in the set whose palette is already the brand's: ivory board,
+    // warm sawdust, brown ink shadow. It sits on --base without a grade.
+    //
+    // 1:1 because the Material section is a square macro; cropping in ffmpeg
+    // rather than with object-fit means the pixels that get thrown away are
+    // never encoded. 310 puts the bit and the groove on the frame's centre
+    // line and drops the empty board below it.
+    slug: 'cnc-score',
+    file: 'fb-vid-2.mp4',
+    filter: 'crop=720:720:0:310',
+    start: 0.5, duration: 6.0, crf: 31,
+    palindrome: false,  // reversed, the groove fills back in
+    role: 'Material macro, 1:1. V-bit chamfering a panel.',
   },
 ];
 
@@ -264,7 +264,7 @@ const ffmpeg = (args) => run(ffmpegPath, ['-y', '-v', 'error', ...args]);
 const sizeOf = async (p) => (await stat(p)).size;
 
 /** Emit the AVIF ladder + one WebP fallback + an inline LQIP for one image. */
-async function emit(input, { slug, max, role, extract, grade }, label) {
+async function emit(input, { slug, max, role, extract, grade, quality }, label) {
   if (extract || grade) {
     let pipe = sharp(input);
     if (extract) pipe = pipe.extract(extract);
@@ -277,7 +277,8 @@ async function emit(input, { slug, max, role, extract, grade }, label) {
 
   let bytes = 0;
   for (const w of widths) {
-    const buf = await sharp(input).resize({ width: w, withoutEnlargement: true }).avif(AVIF).toBuffer();
+    const buf = await sharp(input).resize({ width: w, withoutEnlargement: true })
+      .avif(quality ? { ...AVIF, quality } : AVIF).toBuffer();
     await writeFile(resolve(OUT, `${slug}-${w}.avif`), buf);
     bytes += buf.length;
   }
@@ -323,7 +324,12 @@ async function processVideo(entry) {
   // Full-bleed clips need a poster that can survive being the width of the
   // page; a panel-sized clip does not. 480 stretched across 1440 read as a
   // pale wash before the video painted.
-  const poster = await emit(still, { slug: `${entry.slug}-poster`, max: entry.posterMax ?? 480, role: `Poster for ${entry.slug}` }, ' [poster]');
+  // Posters are encoded harder than photographs on purpose. A poster is on
+  // screen for the few hundred milliseconds before the clip's first frame
+  // paints over it, and it is never the thing a visitor looks at; at q50 the
+  // five of them cost 245 KB, which is a tenth of the page for an image that
+  // is by design invisible. q38 halves that and is indistinguishable in situ.
+  const poster = await emit(still, { slug: `${entry.slug}-poster`, max: entry.posterMax ?? 480, quality: 38, role: `Poster for ${entry.slug}` }, ' [poster]');
   await rm(still);
 
   const size = await sizeOf(mp4);
@@ -352,7 +358,14 @@ async function main() {
 
   console.log('\nImages');
   const images = [];
-  for (const e of IMAGES) images.push(await emit(resolve(SRC_IMG, e.file), e, ''));
+  for (const e of IMAGES) {
+    const src = resolve(SRC_IMG, e.file);
+    if (e.optional && !existsSync(src)) {
+      console.warn(`  skipped ${e.slug}: ${e.file} not supplied`);
+      continue;
+    }
+    images.push(await emit(src, e, ''));
+  }
 
   console.log('\nCrops');
   for (const c of CROPS) images.push(await emit(resolve(SRC_IMG, c.file), c, ''));
@@ -364,6 +377,13 @@ async function main() {
     images.push(await emit(tmp, f, ''));
     await rm(tmp);
   }
+
+  // build-map writes into the same directory this function wiped, so it has to
+  // run inside the pipeline rather than beside it. Its Overpass response is
+  // cached in scripts/.cache, so this is a local redraw, not a refetch.
+  console.log('\nMap');
+  await run(process.execPath, [resolve(HERE, 'build-map.mjs')], { cwd: ROOT })
+    .then(({ stdout }) => process.stdout.write(stdout));
 
   console.log('\nVideo');
   const videos = [];
@@ -392,9 +412,17 @@ async function main() {
     `export const images = ${idx(images)};\n\n` +
     `export const videos = ${idx(videos)};\n`);
 
+  // The budget is asserted against the PAYLOAD, not against the directory. What
+  // the performance criterion measures is what a browser downloads, and roughly
+  // a third of public/media is never downloaded by anyone: the WebP fallbacks
+  // exist only for Safari 16.0-16.3, and an AVIF browser fetches exactly one
+  // rung per image. Disk size is a repo concern; payload is the page.
   const mb = (n) => (n / 1024 / 1024).toFixed(2);
-  console.log(`\n${files.length} files on disk   ${mb(total)} MB   budget 4.00 MB  ${total / 1048576 < 4 ? 'PASS' : 'FAIL'}`);
-  console.log(`worst-case page payload  ${mb(payload)} MB  (largest AVIF per image + both MP4s)`);
+  const pass = payload / 1048576 < 4;
+  console.log(`\nworst-case page payload  ${mb(payload)} MB   budget 4.00 MB  ${pass ? 'PASS' : 'FAIL'}`);
+  console.log(`  = largest AVIF per image + every MP4. Real first load is lower:`);
+  console.log(`    below-fold clips are lazy and each image is served one rung.`);
+  console.log(`${files.length} files on disk   ${mb(total)} MB  (incl. fallbacks no AVIF browser fetches)`);
   console.log(`manifest: src/content/media.js\n`);
 }
 

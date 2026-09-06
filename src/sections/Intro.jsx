@@ -2,7 +2,6 @@ import { useRef } from 'react';
 import { useGSAP } from '@gsap/react';
 import { gsap, SplitText, reduced } from '../lib/gsap.js';
 import { intro } from '../content/brand.js';
-import AmbientVideo from '../components/AmbientVideo.jsx';
 
 /**
  * The manifesto — where the identity actually lands.
@@ -41,11 +40,9 @@ export default function Intro() {
           ease: 'none',
           stagger: 1, // distributed across the scroll distance, not seconds
           scrollTrigger: {
-            // Trigger on the TEXT, not the section. The section also contains
-            // the full-bleed room band, which makes it ~5x the height of the
-            // manifesto — anchoring to it stretched the fill across all of that,
-            // so the words were still dim while you were reading them and only
-            // completed as the text left the screen.
+            // Trigger on the TEXT, not the section — kept even now that the
+            // section is only this text, because the section's padding alone is
+            // enough to stretch the fill past where it is being read.
             trigger: '.manifesto',
             start: 'top 85%',
             end: 'bottom 55%',
@@ -79,22 +76,6 @@ export default function Intro() {
         </div>
       </div>
 
-      {/* The manifesto says every piece begins with your room; the clip then
-          shows an empty room furnishing itself. This is the morph reel used for
-          what it actually shows — its fake-storefront ending is never reached,
-          and the watermark is cropped out geometrically. */}
-      <figure className="mt-3xl">
-        <div className="relative aspect-[16/9] w-full overflow-hidden sm:aspect-[21/9]">
-          <AmbientVideo
-            name="room-reveal"
-            alt="An empty room in which bespoke furniture appears, piece by piece"
-            sizes="100vw"
-            className="h-full w-full"
-            mediaClassName="h-full w-full object-cover"
-          />
-        </div>
-        <figcaption className="shell caption mt-md text-ink-muted">{intro.roomCaption}</figcaption>
-      </figure>
     </section>
   );
 }

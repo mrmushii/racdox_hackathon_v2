@@ -19,9 +19,12 @@ import Wordmark from '../components/Wordmark.jsx';
  * use. Body is 15px, so it lands at ~17x contrast: the scale-contrast target,
  * spent once rather than five times.
  */
-export default function Footer() {
+export default function Footer({ innerRef }) {
   return (
-    <footer className="on-deep bg-deep pb-lg text-on-deep">
+    <footer
+      ref={innerRef}
+      className="on-deep bg-deep pb-lg text-on-deep"
+    >
       <div className="shell">
         <p className="max-w-[30ch] pt-2xl text-muted-deep">
           {brand.positioning}

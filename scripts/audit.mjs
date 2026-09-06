@@ -43,9 +43,33 @@ const r = await page.evaluate(() => {
     headOrder: order,
     heads,
     imgs: q('img').length,
-    noAlt: q('img').filter((i) => !i.getAttribute('alt')).length,
+    // alt="" is the CORRECT markup for a decorative image, not a missing alt —
+    // a screen reader must skip it, not hear a description of it. So the rule
+    // is: every img needs an alt ATTRIBUTE, and an empty one is only allowed
+    // when the image is also hidden from the accessibility tree.
+    noAlt: q('img').filter(
+      (i) => i.getAttribute('alt') === null ||
+             (i.getAttribute('alt') === '' &&
+              i.getAttribute('aria-hidden') !== 'true' &&
+              i.getAttribute('role') !== 'presentation')
+    ).length,
     noDims: q('img').filter((i) => !i.getAttribute('width') || !i.getAttribute('height')).length,
-    lazyHero: q('img')[0]?.getAttribute('loading'),
+    // The hero's LCP candidate is the gold-leaf clip, so this can no longer be
+    // "is the first <img> on the page eager" — the first img is now a wall tile,
+    // and lazy is right for it. What has to hold is that the hero paints
+    // immediately on BOTH paths: a poster on the video, or, under reduced
+    // motion where AmbientVideo swaps to a still, an eager img.
+    // Scoped to .hero-lcp, not to "the first media in the hero panel". The panel
+    // also carries the gold-leaf inset, and a querySelector('video') would have
+    // reported on that instead of on the element the browser actually measures
+    // for LCP - passing while the thing being checked went unchecked.
+    heroPaints: (() => {
+      const img = document.querySelector('.hero-lcp img');
+      if (!img) return 'no .hero-lcp img';
+      if (img.getAttribute('loading') === 'lazy') return 'hero LCP is LAZY';
+      if (img.getAttribute('fetchpriority') !== 'high') return 'hero LCP not fetchpriority=high';
+      return 'eager, high priority';
+    })(),
     wa: q('a[href*="wa.me"]').length,
     waText: [...new Set(q('a[href*="wa.me"]').map((a) => a.textContent.replace(/\s+/g, ' ').trim()))],
     landmarks: ['nav', 'main', 'footer', 'header'].filter((t) => document.querySelector(t)),
@@ -65,7 +89,7 @@ check(r.desc > 60 && r.desc <= 165, 'meta description length', `${r.desc} chars`
 console.log('\n— media —');
 check(r.noAlt === 0, 'every image has alt text', `${r.imgs} images, ${r.noAlt} missing`);
 check(r.noDims === 0, 'every image has width+height (CLS)', `${r.noDims} missing`);
-check(r.lazyHero === 'eager', 'hero image is eager, not lazy', String(r.lazyHero));
+check(r.heroPaints === 'eager, high priority', 'hero paints without waiting', r.heroPaints);
 
 console.log('\n— the CTA spine —');
 check(r.wa >= 3 && r.wa <= 5, 'CTA appears 3-5 times', `${r.wa} placements`);

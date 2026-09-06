@@ -10,12 +10,11 @@ export const images = {
     "aspect": 0.6709,
     "widths": [
       640,
-      1024,
-      1600
+      1024
     ],
     "fallback": 900,
     "lqip": "data:image/webp;base64,UklGRpwAAABXRUJQVlA4IJAAAADwBACdASoYACQAPuVeqU2pJSQiMAqpIByJQBZZgEc1L+eioGmAu4SgeKxdJ4glCgAA+aOVnIYc2j3MyW5v7lAavrshypEGx2y6qto6TwjKJ1mDVYU62/SKuy1fjHrr078AOdtrFqalqY5AtsumuUuFFsDFidfFUpkFefYf9nGmEGRhzaP3fJMV+d3LFw6AAAA=",
-    "role": "Hero still + mobile fallback. Same room as the hero video."
+    "role": "Showroom Wall lead frame. Emerald tufted bed, 1696x2528."
   },
   "showroom-wide": {
     "slug": "showroom-wide",
@@ -64,11 +63,12 @@ export const images = {
     "aspect": 0.7512,
     "widths": [
       640,
-      1024
+      1024,
+      1087
     ],
     "fallback": 900,
     "lqip": "data:image/webp;base64,UklGRpYAAABXRUJQVlA4IIoAAABQBQCdASoYACAAPu1qr1CppaQiqAqpMB2JQBdmcBAXlSmXbaCEnmFwFS++jVZyZcZGY8AA6xezA0HQuHWM2YcewsZu92F82QYKxlV8ILY14Egwifi+OTTqMnoUz5pz+klsCnvZbztaX5cbkk2Bs2X+pb/VU3HG+zqT4k1vphMUxs52+ANoO0AAAAA=",
-    "role": "Collections - Dining. Most credible photograph in the set."
+    "role": "Hero panel. Most credible photograph in the set."
   },
   "bespoke": {
     "slug": "bespoke",
@@ -77,8 +77,7 @@ export const images = {
     "aspect": 1,
     "widths": [
       640,
-      1024,
-      1600
+      1024
     ],
     "fallback": 900,
     "lqip": "data:image/webp;base64,UklGRnoAAABXRUJQVlA4IG4AAAAwBQCdASoYABgAPu1iqE2ppaOiMBgMATAdiWUArAANuW0tY94QKCpZbAX8XaCBAc2EAAD5xw9DkJxTrBb4kSe86md5PgaCj2DF7xtTFs+WyGM/6W172Y9cVVSgv+ZnvdsDi6/TL8s1yJMcjpEAAA==",
@@ -96,6 +95,18 @@ export const images = {
     "fallback": 900,
     "lqip": "data:image/webp;base64,UklGRo4AAABXRUJQVlA4IIIAAAAQBQCdASoYACAAPu1qrlAppiQiqAqpMB2JZQC06A1wkA0hN1hob5Cclb7wkldKw7CAAMqPjiNH5b982Z1XnhQXuWIH1FFHExS3hLPTHCsijuiPGvNfbLPjvvyraAnX7g2oY7XC4py7yizSNi8J+dk867oJMkuWXibatDAB6iAdcBAA",
     "role": "Proof - showroom. Ivory and gold suite under a chandelier."
+  },
+  "founder": {
+    "slug": "founder",
+    "width": 816,
+    "height": 1020,
+    "aspect": 0.8,
+    "widths": [
+      640
+    ],
+    "fallback": 640,
+    "lqip": "data:image/webp;base64,UklGRqIAAABXRUJQVlA4IJYAAACwBQCdASoYAB4APu1urlIppiQiqAgBMB2JYwCw7BF25eoN1MSd37t/P3Uccj3Y/ZqUp8vQdAAA/ucjR/qEvNKVmbJpufUEkdHfpga1U14SPQkO/xxNEXpA+L1IkbYRqXudEPce3CLxpOOu1bkZCjuJ8slrdQ+NrFLtIDWVqWBwm/xkmUF29v0e5CirgTLAoEX1bmQAAAA=",
+    "role": "Proof - MD portrait beside the founder quote."
   },
   "showcase": {
     "slug": "showcase",
@@ -136,67 +147,6 @@ export const images = {
     "lqip": "data:image/webp;base64,UklGRpIAAABXRUJQVlA4IIYAAAAwBQCdASoYABgAPuFUpU2opCOiN/qoARAcCWYAnTKEf/gYOfToKUU8H+A+OexonOpMkADOM/YDk+Uw/NUSoWt0G2ucoPgKX1aBnyTvgzGVP20Hf8ieVQxXjyOnjRwOJt6XF+Kl/Nx7v8EapmHDlwBmnDVpa5UxNLzfEncM3doyraTseVUAAA==",
     "role": "Bespoke secondary - black cabinet, brass handles."
   },
-  "office": {
-    "slug": "office",
-    "width": 2048,
-    "height": 2048,
-    "aspect": 1,
-    "widths": [
-      640,
-      1024
-    ],
-    "fallback": 900,
-    "lqip": "data:image/webp;base64,UklGRoAAAABXRUJQVlA4IHQAAADQBACdASoYABgAPu1kqk6ppaOiKA1RMB2JYgC7AA9nhNItbN/UsCxFcLPMBtchAAD+Ai+edExvZyuS5IJ5gDvyGmwwmAl8wLHh9noyzXUqs4RR2JsKAnGPY5mgCv5/kwhU1tqIpK+vo5eyfdsnbuIQpgAAAA==",
-    "role": "Collections - Office & Study. Warm-graded from S=3% to S=22%."
-  },
-  "office-desk": {
-    "slug": "office-desk",
-    "width": 2048,
-    "height": 2048,
-    "aspect": 1,
-    "widths": [
-      640
-    ],
-    "fallback": 640,
-    "lqip": "data:image/webp;base64,UklGRnwAAABXRUJQVlA4IHAAAADwBACdASoYABgAPu1qrlCppaQiqAqpMB2JYwC7AA3thb61PyE3j6/J9SpBXNq0KAAA/rGD/sQySDe6eP8xmmHGE0k6LXhshUtPsD4TwPe31zbPhKI30/hyyNVZX892BLf88iK+tL05l7KpXuuwAAAA",
-    "role": "Interiors - executive desk."
-  },
-  "office-boardroom": {
-    "slug": "office-boardroom",
-    "width": 2048,
-    "height": 2048,
-    "aspect": 1,
-    "widths": [
-      640
-    ],
-    "fallback": 640,
-    "lqip": "data:image/webp;base64,UklGRogAAABXRUJQVlA4IHwAAAAwBQCdASoYABgAPu1kqU2ppaQiMAgBMB2JZAC06CIOkEaTHE9Ctcr07bzjOl8z/wZMAAD97kU69CD5LLCVIry7U0l08NFbXim4uG07bHh7Rqwx3Lmu4dM7hW4H08S9EZ6R3bEZW9ir3i7P3PaiHfaIbSFU6Bm7BDRfkAAA",
-    "role": "Interiors - boardroom table."
-  },
-  "office-meeting": {
-    "slug": "office-meeting",
-    "width": 2048,
-    "height": 2048,
-    "aspect": 1,
-    "widths": [
-      640
-    ],
-    "fallback": 640,
-    "lqip": "data:image/webp;base64,UklGRnYAAABXRUJQVlA4IGoAAADwBACdASoYABgAPu1srlIppaQiqAgBMB2JYwC293+A6OIeP6QJ0QAMtDuRwL3cf4AA/pe9dk8VkkOg1R+BHQTqYoTnKeBfNMQ1ASYUY00u0mZxQWRKiK7rqK9v64WPbTu6HcHQcQgMCAAA",
-    "role": "Interiors - meeting table."
-  },
-  "office-workstation": {
-    "slug": "office-workstation",
-    "width": 2048,
-    "height": 2048,
-    "aspect": 1,
-    "widths": [
-      640
-    ],
-    "fallback": 640,
-    "lqip": "data:image/webp;base64,UklGRoIAAABXRUJQVlA4IHYAAABwBQCdASoYABgAPu1ip06ppSMiMBgMATAdiWIAnTOAga1+rghsffYmajuW1C/BsBH1wibAAP6xf4dtPLgiJgAnPL+q8/qVoSGLBprr6A1X7rnM7kae8K+DQZyTTi6k1zc/6dWWXnlO6aZhN30fSNw8YHpIIAAA",
-    "role": "Interiors - workstations."
-  },
   "bed-close": {
     "slug": "bed-close",
     "width": 1122,
@@ -234,7 +184,20 @@ export const images = {
     ],
     "fallback": 900,
     "lqip": "data:image/webp;base64,UklGRpIAAABXRUJQVlA4IIYAAAAQBQCdASoYABgAPu1gq1AppSOisBgIATAdiUAWHYGTjaWPmSd4W4jUJUK7gWDTMsTAAPYejyo6JyijJ+VAVnpjI7KApvWlqcPFTtYyplOJMKmST467cKIEOtVWGuImyKbRTYuXFT0TBfMHa/IGaa+5yiOK8tLGpuXYPWv9nEDNlW5grDuAAA==",
-    "role": "Material macro. Carved gilt ornament on a mahogany bed frame."
+    "role": "Showroom Wall. Carved gilt ornament on a mahogany bed frame."
+  },
+  "gold-leaf-poster": {
+    "slug": "gold-leaf-poster",
+    "width": 720,
+    "height": 900,
+    "aspect": 0.8,
+    "widths": [
+      640,
+      720
+    ],
+    "fallback": 720,
+    "lqip": "data:image/webp;base64,UklGRowAAABXRUJQVlA4IIAAAACwBACdASoYAB4APu1krE4ppaSiKA1RMB2JQBWF+pALUWbO5cWMk6gx47GkRWWoAP5KfvnwxeK4q1pDB+9Xulnzz6qoZ/bU8pbZ4W3yhHj667GkOrwMSjjs9mVbea5CaLEaIKfsTkpKv99/u9G4UKizZsk9lsADrFe7DmhVmQRAAA==",
+    "role": "Poster for gold-leaf"
   },
   "craft-process-poster": {
     "slug": "craft-process-poster",
@@ -248,46 +211,8 @@ export const images = {
     "lqip": "data:image/webp;base64,UklGRp4AAABXRUJQVlA4IJIAAAAwBgCdASoYACsAPt1cpU2opSOiMA1REBuJQBYj8BBU/pK2X7vePDt4SskhYBata9E80uBXO0L4zwgAAP6RTxGCh3ANtkMmH4zvmokP5pw9wSJgsC6S0zG+l99DfQBRE+b/2ZJ+xmi0g4UNf50feiO8XfALmEx9+j28Rsus3cc+KiAlPy1IlICcb952BLNV3T0oAA==",
     "role": "Poster for craft-process"
   },
-  "room-reveal-poster": {
-    "slug": "room-reveal-poster",
-    "width": 1100,
-    "height": 618,
-    "aspect": 1.7799,
-    "widths": [
-      640,
-      768
-    ],
-    "fallback": 768,
-    "lqip": "data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAABwAwCdASoYAA0APu1iqk2ppaQiMAgBMB2JZQCdABjcuEP8MAAA/rf5F2LrSKJcmFIV+tz05wjn80QgHpa81M7IpDd/VcMPbF2AAA==",
-    "role": "Poster for room-reveal"
-  },
-  "craft-detail-poster": {
-    "slug": "craft-detail-poster",
-    "width": 900,
-    "height": 720,
-    "aspect": 1.25,
-    "widths": [
-      480
-    ],
-    "fallback": 480,
-    "lqip": "data:image/webp;base64,UklGRnQAAABXRUJQVlA4IGgAAAAQBQCdASoYABMAPtVao02oJaMiN+gBABqJQBOgBlb+dIwxYNVfn2BZrSOT7W+qx8KAAP7k/SQ7bKUXJy+XQh9EErLSa9pH50kOm3LtSgOw4pLJM9RCbvsFB5AxWhqLzxSq81ZOBjAAAA==",
-    "role": "Poster for craft-detail"
-  },
-  "showroom-tour-poster": {
-    "slug": "showroom-tour-poster",
-    "width": 1000,
-    "height": 424,
-    "aspect": 2.3585,
-    "widths": [
-      640,
-      768
-    ],
-    "fallback": 768,
-    "lqip": "data:image/webp;base64,UklGRmgAAABXRUJQVlA4IFwAAABQBACdASoYAAoAPu1oqk6ppiQiMAgBMB2JYwCdABwxwdOua1nRh/8t/92QAPryGWTD8OxZ2V8omUEAPbibgwtsAadw09ZJmSm44qQJBePEwswXC2rSD1LjecKUAA==",
-    "role": "Poster for showroom-tour"
-  },
-  "interiors-joinery-poster": {
-    "slug": "interiors-joinery-poster",
+  "cnc-cut-poster": {
+    "slug": "cnc-cut-poster",
     "width": 540,
     "height": 960,
     "aspect": 0.5625,
@@ -295,12 +220,34 @@ export const images = {
       480
     ],
     "fallback": 480,
-    "lqip": "data:image/webp;base64,UklGRrYAAABXRUJQVlA4IKoAAACQBgCdASoYACsAPu1iqk6ppSOiKrgN+TAdiUAVgAFBZQp0jULgTlz+N9/PK774WONLmRn0y0ooyaHl7jYAAPyBszmRPNfBOKdIBWIaGBlbF6qQVSOaLqxSRueDE7T18h4kQIRRNpS6NsEmC2swD9VlyBA50iNtI+6qO9pn34C0aTyMdp4K5Ok3to/G/z/9ujwolgxJ2oJLzlo4IuVr5XqRQhOaCMC+MMAAAA==",
-    "role": "Poster for interiors-joinery"
+    "lqip": "data:image/webp;base64,UklGRpgAAABXRUJQVlA4IIwAAAAQBQCdASoYACsAPtFSoU2oJKMiOrzIAQAaCWUAwrwj3hK/cRfUCdcZCk2gFwISjMIAAP7FfwfOaGhxgJaeW4avAY7oNoE1d2qryc3wb2VbSI2RFMhJpRtYRI7Q8ATL14FFw/+jMYpUwkaBNhvFREXAlZySmqDJe4C/gBfZp+orcKtA8SlZvuIF4IAAAA==",
+    "role": "Poster for cnc-cut"
+  },
+  "cnc-score-poster": {
+    "slug": "cnc-score-poster",
+    "width": 720,
+    "height": 720,
+    "aspect": 1,
+    "widths": [
+      480
+    ],
+    "fallback": 480,
+    "lqip": "data:image/webp;base64,UklGRooAAABXRUJQVlA4IH4AAACQBQCdASoYABgAPu1eq02ppKQiMBgMATAdiWcAxNgNyd5ltvVkZ361OSL53+dVMEnW8sJNAAD+1RX3Gg4yuLGnTEDKCiWtYpd6NQG21TqwXwOv1Kr6BDDqLhBGkwTUvxpqCqkketzZs8X73TxHTv2q7agj9HtOt4JT5RP+wAA=",
+    "role": "Poster for cnc-score"
   }
 };
 
 export const videos = {
+  "gold-leaf": {
+    "slug": "gold-leaf",
+    "poster": "gold-leaf-poster",
+    "width": 720,
+    "height": 900,
+    "aspect": 0.8,
+    "duration": 7.5,
+    "lqip": "data:image/webp;base64,UklGRowAAABXRUJQVlA4IIAAAACwBACdASoYAB4APu1krE4ppaSiKA1RMB2JQBWF+pALUWbO5cWMk6gx47GkRWWoAP5KfvnwxeK4q1pDB+9Xulnzz6qoZ/bU8pbZ4W3yhHj667GkOrwMSjjs9mVbea5CaLEaIKfsTkpKv99/u9G4UKizZsk9lsADrFe7DmhVmQRAAA==",
+    "role": "Hero panel, 4:5. Gold leaf laid onto carved wood by hand."
+  },
   "craft-process": {
     "slug": "craft-process",
     "poster": "craft-process-poster",
@@ -309,46 +256,26 @@ export const videos = {
     "aspect": 0.5625,
     "duration": 7,
     "lqip": "data:image/webp;base64,UklGRp4AAABXRUJQVlA4IJIAAAAwBgCdASoYACsAPt1cpU2opSOiMA1REBuJQBYj8BBU/pK2X7vePDt4SskhYBata9E80uBXO0L4zwgAAP6RTxGCh3ANtkMmH4zvmokP5pw9wSJgsC6S0zG+l99DfQBRE+b/2ZJ+xmi0g4UNf50feiO8XfALmEx9+j28Rsus3cc+KiAlPy1IlICcb952BLNV3T0oAA==",
-    "role": "Bespoke Highlight, 9:16 panel. Real workshop footage."
+    "role": "Bespoke step 03 (Craft), 9:16 panel. Upholstery by hand."
   },
-  "room-reveal": {
-    "slug": "room-reveal",
-    "poster": "room-reveal-poster",
-    "width": 1100,
-    "height": 618,
-    "aspect": 1.7799,
-    "duration": 5.3,
-    "lqip": "data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAABwAwCdASoYAA0APu1iqk2ppaQiMAgBMB2JZQCdABjcuEP8MAAA/rf5F2LrSKJcmFIV+tz05wjn80QgHpa81M7IpDd/VcMPbF2AAA==",
-    "role": "Intro. An empty room furnishing itself."
-  },
-  "craft-detail": {
-    "slug": "craft-detail",
-    "poster": "craft-detail-poster",
-    "width": 900,
-    "height": 720,
-    "aspect": 1.25,
-    "duration": 2.4,
-    "lqip": "data:image/webp;base64,UklGRnQAAABXRUJQVlA4IGgAAAAQBQCdASoYABMAPtVao02oJaMiN+gBABqJQBOgBlb+dIwxYNVfn2BZrSOT7W+qx8KAAP7k/SQ7bKUXJy+XQh9EErLSa9pH50kOm3LtSgOw4pLJM9RCbvsFB5AxWhqLzxSq81ZOBjAAAA==",
-    "role": "Material. Macro of embroidery, gilt carving and nailhead trim."
-  },
-  "showroom-tour": {
-    "slug": "showroom-tour",
-    "poster": "showroom-tour-poster",
-    "width": 1000,
-    "height": 424,
-    "aspect": 2.3585,
-    "duration": 6.5,
-    "lqip": "data:image/webp;base64,UklGRmgAAABXRUJQVlA4IFwAAABQBACdASoYAAoAPu1oqk6ppiQiMAgBMB2JYwCdABwxwdOua1nRh/8t/92QAPryGWTD8OxZ2V8omUEAPbibgwtsAadw09ZJmSm44qQJBePEwswXC2rSD1LjecKUAA==",
-    "role": "Proof. The actual showroom floor, Agrabad Access Road, Chattogram."
-  },
-  "interiors-joinery": {
-    "slug": "interiors-joinery",
-    "poster": "interiors-joinery-poster",
+  "cnc-cut": {
+    "slug": "cnc-cut",
+    "poster": "cnc-cut-poster",
     "width": 540,
     "height": 960,
     "aspect": 0.5625,
-    "duration": 4.5,
-    "lqip": "data:image/webp;base64,UklGRrYAAABXRUJQVlA4IKoAAACQBgCdASoYACsAPu1iqk6ppSOiKrgN+TAdiUAVgAFBZQp0jULgTlz+N9/PK774WONLmRn0y0ooyaHl7jYAAPyBszmRPNfBOKdIBWIaGBlbF6qQVSOaLqxSRueDE7T18h4kQIRRNpS6NsEmC2swD9VlyBA50iNtI+6qO9pn34C0aTyMdp4K5Ok3to/G/z/9ujwolgxJ2oJLzlo4IuVr5XqRQhOaCMC+MMAAAA==",
-    "role": "Interiors. Fitted joinery - shelving, cabinetry, built-ins."
+    "duration": 7,
+    "lqip": "data:image/webp;base64,UklGRpgAAABXRUJQVlA4IIwAAAAQBQCdASoYACsAPtFSoU2oJKMiOrzIAQAaCWUAwrwj3hK/cRfUCdcZCk2gFwISjMIAAP7FfwfOaGhxgJaeW4avAY7oNoE1d2qryc3wb2VbSI2RFMhJpRtYRI7Q8ATL14FFw/+jMYpUwkaBNhvFREXAlZySmqDJe4C/gBfZp+orcKtA8SlZvuIF4IAAAA==",
+    "role": "Bespoke step 02 (Design). CNC router cutting joinery blanks."
+  },
+  "cnc-score": {
+    "slug": "cnc-score",
+    "poster": "cnc-score-poster",
+    "width": 720,
+    "height": 720,
+    "aspect": 1,
+    "duration": 6,
+    "lqip": "data:image/webp;base64,UklGRooAAABXRUJQVlA4IH4AAACQBQCdASoYABgAPu1eq02ppKQiMBgMATAdiWcAxNgNyd5ltvVkZ361OSL53+dVMEnW8sJNAAD+1RX3Gg4yuLGnTEDKCiWtYpd6NQG21TqwXwOv1Kr6BDDqLhBGkwTUvxpqCqkketzZs8X73TxHTv2q7agj9HtOt4JT5RP+wAA=",
+    "role": "Material macro, 1:1. V-bit chamfering a panel."
   }
 };

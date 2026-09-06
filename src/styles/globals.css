@@ -85,6 +85,26 @@
   .on-deep :focus-visible { outline-color: var(--color-gold); }
 }
 
+/* ============================================================================
+   Registered custom properties.
+
+   A clip-path built by string concatenation in JS is re-parsed every frame.
+   Registering the two values it interpolates gives the browser a TYPED
+   animation it can hand to the compositor instead. This is the difference
+   between the reveal being free and the reveal being the reason the section
+   drops frames on a phone. See src/components/RevealMask.jsx.
+   ========================================================================= */
+@property --reveal {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 30%;
+}
+@property --reveal-radius {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 28px;
+}
+
 @layer components {
   /* --- Type registers ----------------------------------------------------
      Two registers with OPPOSITE tracking rules. Both are correct.          */
@@ -144,6 +164,17 @@
     background: currentColor;
     /* apex, angled cut on the right - the mark's own geometry */
     clip-path: polygon(50% 0%, 100% 100%, 78% 100%, 50% 42%, 22% 100%, 0% 100%);
+  }
+
+
+  /* The scroll-opened frame. Its two values are registered above so the
+     clip-path interpolates on the compositor; the closed state here is also
+     the correct static state if JS never runs. */
+  .reveal-mask {
+    clip-path: inset(var(--reveal) round var(--reveal-radius));
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal-mask { clip-path: none; }
   }
 
   /* --- Rules --------------------------------------------------------------

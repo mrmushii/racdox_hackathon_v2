@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { videos } from '../content/media.js';
+import { images, videos } from '../content/media.js';
 import { useMediaQuery } from '../lib/use-media-query.js';
 import Picture from './Picture.jsx';
 
@@ -38,6 +38,10 @@ export default function AmbientVideo({
   if (!v) throw new Error(`AmbientVideo: unknown clip "${name}"`);
 
   const still = poster || v.poster;
+  // The poster attribute must name a rung that actually exists. Poster ladders
+  // are capped per clip (most stop at 480), so a hardcoded -640 silently 404s
+  // and the browser paints nothing while the clip loads.
+  const stillW = images[still].widths.at(-1);
   const box = useRef(null);
   const motionOK = useMediaQuery('(prefers-reduced-motion: no-preference)');
   const [nearby, setNearby] = useState(eager);
@@ -64,7 +68,7 @@ export default function AmbientVideo({
           loop
           playsInline
           preload="metadata"
-          poster={`/media/${still}-640.avif`}
+          poster={`/media/${still}-${stillW}.avif`}
           aria-label={alt}
         >
           <source src={`/media/${name}.mp4`} type="video/mp4" />

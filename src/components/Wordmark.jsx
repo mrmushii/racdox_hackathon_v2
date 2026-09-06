@@ -26,27 +26,44 @@ export default function Wordmark({ size = 'sm', className = '', gold = true }) {
 
   return (
     <span className={`inline-flex flex-col ${className}`}>
+      {/* Every glyph is its own box so the footer can drop them in one at a
+          time. overflow-hidden makes that row its own mask: a letter above its
+          resting position is clipped rather than colliding with the columns
+          overhead, which is what makes it read as falling INTO the word. At
+          rest nothing overflows, so this costs nothing when no one animates it. */}
       <span
-        className={`inline-flex items-center font-sans font-extrabold uppercase leading-none ${scale}`}
+        className={`inline-flex items-center overflow-hidden font-sans font-extrabold uppercase leading-none ${scale}`}
         style={{ letterSpacing: '0.01em' }}
       >
-        HE
+        {['H', 'E'].map((ch, i) => (
+          <span key={i} data-mark-letter className="inline-block">
+            {ch}
+          </span>
+        ))}
         {/* The mark's only distinctive shape: an apex with no crossbar and an
             angled cut. Sized to cap height, so it sits in the word, not beside it. */}
-        <svg
-          viewBox="0 0 100 100"
-          aria-hidden="true"
-          className="mx-[0.04em] inline-block"
-          style={{ height: '0.72em', width: '0.66em' }}
-        >
-          <path
-            d="M50 4 L96 96 L74 96 L50 47 L26 96 L4 96 Z"
-            fill={gold ? 'var(--color-gold)' : 'currentColor'}
-          />
-        </svg>
-        VEN
+        <span data-mark-letter className="inline-block">
+          <svg
+            viewBox="0 0 100 100"
+            aria-hidden="true"
+            className="mx-[0.04em] inline-block"
+            style={{ height: '0.72em', width: '0.66em' }}
+          >
+            <path
+              d="M50 4 L96 96 L74 96 L50 47 L26 96 L4 96 Z"
+              fill={gold ? 'var(--color-gold)' : 'currentColor'}
+            />
+          </svg>
+        </span>
+        {['V', 'E', 'N'].map((ch, i) => (
+          <span key={i} data-mark-letter className="inline-block">
+            {ch}
+          </span>
+        ))}
       </span>
-      <span className={`font-sans font-medium uppercase ${sub}`}>{brand.markSub}</span>
+      <span data-mark-sub className={`font-sans font-medium uppercase ${sub}`}>
+        {brand.markSub}
+      </span>
     </span>
   );
 }
