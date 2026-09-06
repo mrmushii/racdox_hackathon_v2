@@ -39,6 +39,14 @@ export default function Nav() {
 
   const close = useCallback(() => setOpen(false), []);
 
+  const handleNavClick = useCallback((e, href) => {
+    e.preventDefault();
+    close();
+    setTimeout(() => {
+      scrollToTarget(href);
+    }, 350);
+  }, [close]);
+
   /* --- bar: solid past the hero, hides on scroll-down --------------------- */
   useGSAP(
     () => {
@@ -239,7 +247,7 @@ export default function Nav() {
                 <li key={item.href} className="sheet-row border-b border-line-deep">
                   <a
                     href={item.href}
-                    onClick={close}
+                    onClick={(e) => handleNavClick(e, item.href)}
                     onMouseEnter={() => setHovered(i)}
                     onFocus={() => setHovered(i)}
                     className="group flex items-baseline gap-md py-[clamp(0.3rem,1.15vh,1.1rem)]"

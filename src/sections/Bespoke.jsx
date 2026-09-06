@@ -31,6 +31,26 @@ export default function Bespoke() {
     window.scrollTo({ top: targetScroll, behavior: 'smooth' });
   }, []);
 
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
+
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  };
+
+  const handleTouchEnd = (e) => {
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+    const deltaY = e.changedTouches[0].clientY - touchStartY.current;
+    if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      if (deltaX < 0 && activeStep < bespoke.steps.length - 1) {
+        goToStep(activeStep + 1);
+      } else if (deltaX > 0 && activeStep > 0) {
+        goToStep(activeStep - 1);
+      }
+    }
+  };
+
   useGSAP(
     () => {
       if (!root.current) return;
@@ -57,15 +77,19 @@ export default function Bespoke() {
     <section
       id="bespoke"
       ref={root}
-      className="relative on-deep bg-deep text-on-deep h-[300vh] lg:h-[360vh]"
+      className="relative on-deep bg-deep text-on-deep h-[280vh] lg:h-[360vh]"
     >
       {/* Sticky Stage — locks in place while scrolling through the steps */}
-      <div className="sticky top-0 h-[100svh] w-full flex flex-col justify-center overflow-hidden py-6 lg:py-12">
-        <div className="shell grid grid-cols-12 items-center gap-x-[clamp(1rem,2vw,2rem)] gap-y-lg">
+      <div
+        className="sticky top-0 h-[100svh] w-full flex flex-col justify-center overflow-hidden py-4 sm:py-6 lg:py-12"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        <div className="shell grid grid-cols-12 items-center gap-x-[clamp(1rem,2vw,2rem)] gap-y-md lg:gap-y-lg">
           
           {/* Left Column: Step Media Frame */}
           <div className="col-span-12 sm:col-span-8 sm:col-start-3 lg:col-span-5 lg:col-start-1">
-            <div className="relative mx-auto aspect-[4/3] sm:aspect-[4/5] w-full max-h-[38svh] sm:max-h-[50svh] lg:max-h-[62svh] overflow-hidden border border-line-deep bg-deep/90 shadow-2xl">
+            <div className="relative mx-auto aspect-[16/10] sm:aspect-[4/5] w-full max-h-[30svh] sm:max-h-[48svh] lg:max-h-[62svh] overflow-hidden border border-line-deep bg-deep/90 shadow-2xl">
               {bespoke.steps.map((s, i) => (
                 <div
                   key={s.n}

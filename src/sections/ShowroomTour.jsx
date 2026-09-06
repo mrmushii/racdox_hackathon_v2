@@ -70,19 +70,29 @@ export default function ShowroomTour() {
         </div>
 
         {/* Cinematic letterbox frame */}
-        <div className="tour-frame mt-2xl">
-          <div className="relative overflow-hidden border border-line-deep"
-            style={{ aspectRatio: '21/9' }}
-          >
+        <div className="tour-frame mt-xl lg:mt-2xl">
+          <div className="relative overflow-hidden border border-line-deep aspect-[16/9] md:aspect-[21/9] bg-deep/80">
+            {/* Poster thumbnail preview */}
+            <img
+              src="/media/showroom-tour-poster.jpg"
+              alt="Virtual Showroom Tour"
+              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
+                isVisible ? 'opacity-0' : 'opacity-100'
+              }`}
+              loading="lazy"
+            />
+
             {isVisible && (
               <video
                 ref={videoRef}
-                className="h-full w-full object-cover"
+                className="absolute inset-0 h-full w-full object-cover"
                 autoPlay
                 muted
+                defaultMuted
                 loop
                 playsInline
                 preload="metadata"
+                poster="/media/showroom-tour-poster.jpg"
               >
                 {/* #t=5 trims the logo intro at the beginning */}
                 <source src="/media/showroom-tour.mp4#t=5" type="video/mp4" />

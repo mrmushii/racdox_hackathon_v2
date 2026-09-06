@@ -62,13 +62,14 @@ export default function ShowroomWall({ left, centre, right }) {
       // wall the frames enter at genuinely different times, so a single
       // staggered timeline would fire the bottom of a column while it is still
       // two screens away.
-      gsap.utils.toArray('.wall-cell').forEach((cell) => {
+      gsap.utils.toArray('.wall-cell', root.current).forEach((cell) => {
         gsap.from(cell, {
           y: 28,
           opacity: 0,
           duration: 0.9,
           ease: EASE_OUT,
-          scrollTrigger: { trigger: cell, start: 'top 88%' },
+          clearProps: 'transform,opacity',
+          scrollTrigger: { trigger: cell, start: 'top 90%', once: true },
         });
       });
     },

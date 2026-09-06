@@ -137,6 +137,16 @@ function ReelCell({ src, poster, label, aspect }) {
     }
   }, []);
 
+  const handleClick = useCallback(() => {
+    const vid = videoRef.current;
+    if (!vid) return;
+    if (vid.paused) {
+      handleMouseEnter();
+    } else {
+      handleMouseLeave();
+    }
+  }, [handleMouseEnter, handleMouseLeave]);
+
   return (
     <figure
       ref={cellRef}
@@ -144,6 +154,7 @@ function ReelCell({ src, poster, label, aspect }) {
       style={{ aspectRatio: aspect }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onClick={handleClick}
     >
       {/* 1. High-res preview thumbnail (instant load, no blank state) */}
       <img

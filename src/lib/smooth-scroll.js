@@ -49,3 +49,16 @@ export function lockScroll(locked) {
   if (instance) locked ? instance.stop() : instance.start();
   document.documentElement.style.overflow = locked ? 'hidden' : '';
 }
+
+/**
+ * Smoothly scroll to a selector or element using Lenis if active, falling back
+ * to native smooth scrolling.
+ */
+export function scrollToTarget(target) {
+  if (instance) {
+    instance.scrollTo(target, { offset: 0, duration: 1.1 });
+  } else {
+    const el = typeof target === 'string' ? document.querySelector(target) : target;
+    el?.scrollIntoView({ behavior: 'smooth' });
+  }
+}

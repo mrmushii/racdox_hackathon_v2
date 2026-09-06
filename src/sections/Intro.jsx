@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { useGSAP } from '@gsap/react';
-import { gsap, SplitText, reduced } from '../lib/gsap.js';
+import { gsap, ScrollTrigger, SplitText, reduced } from '../lib/gsap.js';
 import { intro } from '../content/brand.js';
 
 /**
@@ -40,15 +40,13 @@ export default function Intro() {
           ease: 'none',
           stagger: 1, // distributed across the scroll distance, not seconds
           scrollTrigger: {
-            // Trigger on the TEXT, not the section — kept even now that the
-            // section is only this text, because the section's padding alone is
-            // enough to stretch the fill past where it is being read.
             trigger: '.manifesto',
             start: 'top 85%',
             end: 'bottom 55%',
             scrub: true,
           },
         });
+        ScrollTrigger.refresh();
       });
 
       return () => {
