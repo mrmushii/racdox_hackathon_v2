@@ -75,6 +75,8 @@ export default function ShowroomTour() {
             {/* Poster thumbnail preview */}
             <img
               src="/media/showroom-tour-poster.jpg"
+              width={1000}
+              height={424}
               alt="Virtual Showroom Tour"
               className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
                 isVisible ? 'opacity-0' : 'opacity-100'

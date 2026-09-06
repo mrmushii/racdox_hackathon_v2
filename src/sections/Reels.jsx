@@ -10,6 +10,18 @@ import { gsap, reduced, EASE_OUT } from '../lib/gsap.js';
  * On hover, the video runs silently; on leave, it resets.
  */
 
+/* Nine of the ten showroom clips. Ordered so no two cells of the same FURNITURE
+   TYPE sit side by side on the three-column desktop grid — five of the nine are
+   dining, so perfect deconfliction is impossible, but the two nearest matches
+   (the marble and the oval marble dining suites) are kept a full row apart, and
+   so are the two gilt vitrines.
+
+   Aspect alternates 4/5 and 9/16 to give the grid its masonry rhythm; both are
+   crops of the same native 9:16 source, so nothing is upscaled.
+
+   The tenth clip (a white-and-grey modern bedroom with a dressing table) is
+   left out on the same grounds the Gemini office renders were: it is cool and
+   contemporary against a set that is uniformly warm and ornate. */
 const REELS = [
   {
     src: '/media/product-vid-4.mp4',
@@ -21,6 +33,12 @@ const REELS = [
     src: '/media/product-vid-9.mp4',
     poster: '/media/product-vid-9-poster.jpg',
     label: 'Velvet bedroom suite',
+    aspect: '9/16',
+  },
+  {
+    src: '/media/product-vid-13.mp4',
+    poster: '/media/product-vid-13-poster.jpg',
+    label: 'Gilt display cabinet',
     aspect: '9/16',
   },
   {
@@ -36,15 +54,27 @@ const REELS = [
     aspect: '9/16',
   },
   {
-    src: '/media/product-vid-8.mp4',
-    poster: '/media/product-vid-8-poster.jpg',
-    label: 'Carved dining suite',
-    aspect: '4/5',
-  },
-  {
     src: '/media/product-vid-7.mp4',
     poster: '/media/product-vid-7-poster.jpg',
     label: 'Vanity suite',
+    aspect: '4/5',
+  },
+  {
+    src: '/media/product-vid-14.mp4',
+    poster: '/media/product-vid-14-poster.jpg',
+    label: 'Carved vitrine, gilt trim',
+    aspect: '9/16',
+  },
+  {
+    src: '/media/product-vid-5.mp4',
+    poster: '/media/product-vid-5-poster.jpg',
+    label: 'Granite dining suite',
+    aspect: '4/5',
+  },
+  {
+    src: '/media/product-vid-8.mp4',
+    poster: '/media/product-vid-8-poster.jpg',
+    label: 'Carved dining suite',
     aspect: '9/16',
   },
 ];
@@ -159,6 +189,8 @@ function ReelCell({ src, poster, label, aspect }) {
       {/* 1. High-res preview thumbnail (instant load, no blank state) */}
       <img
         src={poster}
+        width={aspect === '4/5' ? 720 : 720}
+        height={aspect === '4/5' ? 900 : 1280}
         alt={label}
         className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
           isPlaying ? 'opacity-0' : 'opacity-100'

@@ -1,25 +1,36 @@
 import { contact } from '../content/brand.js';
+import { useQuoteModal } from '../context/QuoteContext.jsx';
 
 /**
- * The only element on the page styled as a primary button. One action, one
- * wording, four placements.
+ * The primary button on the page. Opens the bespoke Request a Quote modal.
  *
  * Gold fill carries DEEP-TEAL text at 7.93:1. White on gold is 2.07:1 and gold
  * text on ivory is 1.83:1 — neither is ever used. See docs/01-brand.md.
  */
-export default function CTAButton({ className = '', size = 'md' }) {
+export default function CTAButton({ className = '', size = 'md', category = '', onClick }) {
+  const { openQuoteModal } = useQuoteModal();
+
   const pad =
     size === 'lg'
       ? 'px-[clamp(1.75rem,3vw,2.75rem)] py-[clamp(1rem,1.4vw,1.35rem)]'
       : 'px-[clamp(1.25rem,2vw,1.75rem)] py-[clamp(0.75rem,1vw,0.95rem)]';
 
+  const handleClick = (e) => {
+    if (onClick) {
+      onClick(e);
+      return;
+    }
+    e.preventDefault();
+    openQuoteModal(category);
+  };
+
   return (
-    <a
-      href={contact.whatsapp}
-      target="_blank"
-      rel="noopener noreferrer"
+    <button
+      type="button"
+      onClick={handleClick}
+      aria-haspopup="dialog"
       className={`caption group relative inline-flex min-h-[2.75rem] items-center gap-3
-                  overflow-hidden whitespace-nowrap bg-gold text-deep ${pad} ${className}`}
+                  overflow-hidden whitespace-nowrap bg-gold text-deep cursor-pointer ${pad} ${className}`}
     >
       {/* Slow wipe on hover: 0.6s, symmetric. Furniture is heavy. */}
       <span
@@ -37,6 +48,6 @@ export default function CTAButton({ className = '', size = 'md' }) {
       >
         →
       </span>
-    </a>
+    </button>
   );
 }

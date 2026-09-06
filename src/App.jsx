@@ -16,6 +16,8 @@ import Proof from './sections/Proof.jsx';
 import Visit from './sections/Visit.jsx';
 import CTA from './sections/CTA.jsx';
 import Footer from './sections/Footer.jsx';
+import { QuoteProvider } from './context/QuoteContext.jsx';
+import QuoteModal from './components/QuoteModal.jsx';
 
 export default function App() {
   const footerRef = useRef(null);
@@ -35,7 +37,7 @@ export default function App() {
   }, []);
 
   return (
-    <>
+    <QuoteProvider>
       <a
         href="#top"
         className="caption sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-deep focus:px-4 focus:py-3 focus:text-on-deep"
@@ -57,6 +59,8 @@ export default function App() {
         <CTA />
       </main>
       <Footer innerRef={footerRef} />
-    </>
+      <QuoteModal />
+    </QuoteProvider>
   );
 }
+

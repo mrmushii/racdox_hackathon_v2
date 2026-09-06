@@ -16,6 +16,15 @@ import CTAButton from '../components/CTAButton.jsx';
  * - Zero GSAP pin overlay bugs or layout conflicts.
  * - Step tabs are also directly clickable to jump to any step.
  */
+const STEP_TARGETS = [0.06, 0.40, 0.65, 0.88];
+
+function getStepFromProgress(p) {
+  if (p >= 0.78) return 3;
+  if (p >= 0.54) return 2;
+  if (p >= 0.28) return 1;
+  return 0;
+}
+
 export default function Bespoke() {
   const root = useRef(null);
   const [activeStep, setActiveStep] = useState(0);
@@ -27,7 +36,8 @@ export default function Bespoke() {
     const currentScroll = window.scrollY;
     const sectionTop = currentScroll + rect.top;
     const totalScrollable = rect.height - window.innerHeight;
-    const targetScroll = sectionTop + (index / bespoke.steps.length) * totalScrollable + 10;
+    const targetProgress = STEP_TARGETS[index] ?? (index / 3);
+    const targetScroll = sectionTop + targetProgress * totalScrollable;
     window.scrollTo({ top: targetScroll, behavior: 'smooth' });
   }, []);
 
@@ -55,18 +65,39 @@ export default function Bespoke() {
     () => {
       if (!root.current) return;
 
+      // Progress comes from the section's LIVE rect, not from self.progress.
+      //
+      // ScrollTrigger caches a trigger's start/end when it is created. This one
+      // is created synchronously on mount, while the hero's pin - which inserts
+      // ~990px of pin-spacer ABOVE this section - is created later, inside
+      // document.fonts.ready. That left this section's cached range sitting too
+      // high in the document: the badge already read "Step 02" at the section's
+      // own top, step 04 arrived 37% in, and the last ~1400px of the track was
+      // frozen on step 04 while step 01 was never visible at all.
+      //
+      // A rect is read fresh every call, so the mapping cannot drift - whatever
+      // is created before or after this, and however the document height moves.
+      const compute = () => {
+        const el = root.current;
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        const scrollable = rect.height - window.innerHeight;
+        if (scrollable <= 0) return;
+        setActiveStep(getStepFromProgress(Math.min(1, Math.max(0, -rect.top / scrollable))));
+      };
+
+      // Deliberately over-wide: the cached range now only decides WHEN onUpdate
+      // fires, and spanning the whole approach means it is always firing while
+      // the section is on screen. The value it reports comes from `compute`, so
+      // a stale range costs nothing.
       const trigger = ScrollTrigger.create({
         trigger: root.current,
-        start: 'top top',
-        end: 'bottom bottom',
-        onUpdate: (self) => {
-          const stepIndex = Math.min(
-            bespoke.steps.length - 1,
-            Math.max(0, Math.floor(self.progress * bespoke.steps.length))
-          );
-          setActiveStep(stepIndex);
-        },
+        start: 'top bottom',
+        end: 'bottom top',
+        onUpdate: compute,
+        onRefresh: compute,
       });
+      compute();
 
       return () => trigger.kill();
     },
@@ -77,7 +108,7 @@ export default function Bespoke() {
     <section
       id="bespoke"
       ref={root}
-      className="relative on-deep bg-deep text-on-deep h-[280vh] lg:h-[360vh]"
+      className="relative on-deep bg-deep text-on-deep h-[400vh] lg:h-[480vh]"
     >
       {/* Sticky Stage — locks in place while scrolling through the steps */}
       <div
@@ -143,7 +174,8 @@ export default function Bespoke() {
                     key={s.n}
                     type="button"
                     onClick={() => goToStep(i)}
-                    className="group flex-1 text-left pb-1 transition-colors cursor-pointer"
+                    className="group flex min-h-[2.75rem] flex-1 flex-col justify-center text-left pb-1
+                               transition-colors cursor-pointer"
                     aria-label={`Step ${s.n}: ${s.name}`}
                   >
                     <div className="flex items-center gap-1.5 sm:gap-2">
