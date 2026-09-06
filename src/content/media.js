@@ -277,5 +277,15 @@ export const videos = {
     "duration": 6,
     "lqip": "data:image/webp;base64,UklGRooAAABXRUJQVlA4IH4AAACQBQCdASoYABgAPu1eq02ppKQiMBgMATAdiWcAxNgNyd5ltvVkZ361OSL53+dVMEnW8sJNAAD+1RX3Gg4yuLGnTEDKCiWtYpd6NQG21TqwXwOv1Kr6BDDqLhBGkwTUvxpqCqkketzZs8X73TxHTv2q7agj9HtOt4JT5RP+wAA=",
     "role": "Material macro, 1:1. V-bit chamfering a panel."
+  },
+  "showroom-tour": {
+    "slug": "showroom-tour",
+    "poster": "showroom-wide",
+    "width": 1280,
+    "height": 720,
+    "aspect": 1.7777,
+    "duration": 30,
+    "lqip": "data:image/webp;base64,UklGRl4AAABXRUJQVlA4IFIAAACwAwCdASoYAAoAPu1kqk4ppaQiMAgBMB2JQBOgAsNRH7ZW/2z8AAD+mC0cXe6SmKKUJ4ikvINoaL5b+N0XsrrAx3rGg8rSiCF48ArC2VZMBAAA",
+    "role": "Showroom Tour video."
   }
 };

@@ -10,6 +10,8 @@ import Intro from './sections/Intro.jsx';
 import Work from './sections/Work.jsx';
 import Bespoke from './sections/Bespoke.jsx';
 import Material from './sections/Material.jsx';
+import ShowroomTour from './sections/ShowroomTour.jsx';
+import Reels from './sections/Reels.jsx';
 import Proof from './sections/Proof.jsx';
 import Visit from './sections/Visit.jsx';
 import CTA from './sections/CTA.jsx';
@@ -48,6 +50,8 @@ export default function App() {
         <Work />
         <Bespoke />
         <Material />
+        <ShowroomTour />
+        <Reels />
         <Proof />
         <Visit />
         <CTA />

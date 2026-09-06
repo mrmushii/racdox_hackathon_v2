@@ -182,6 +182,13 @@ export const material = {
   ],
 };
 
+export const showroomTour = {
+  eyebrow: 'Virtual Tour',
+  headline: 'Experience the Craft',
+  lede: 'Step inside our Agrabad showroom. See the premium materials, feel the upholstery, and understand what custom truly means before you commit.',
+  caption: 'Virtual tour of the Heaven Furniture Mart showroom in Chattogram.',
+};
+
 export const proof = {
   eyebrow: 'Since 2020',
   bandCaption: 'A carved and upholstered suite, Agrabad showroom.',
