@@ -1,6 +1,7 @@
 import { useRef, useState, useCallback } from 'react';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from '../lib/gsap.js';
+import { scrollToTarget } from '../lib/smooth-scroll.js';
 import { bespoke } from '../content/brand.js';
 import AmbientVideo from '../components/AmbientVideo.jsx';
 import Picture from '../components/Picture.jsx';
@@ -10,7 +11,7 @@ import CTAButton from '../components/CTAButton.jsx';
  * THE BESPOKE PROCESS — Step-by-Step Presentation
  *
  * Appears step-by-step as you scroll:
- * - Uses native CSS sticky pinning (sticky top-0 h-[100svh]) inside a 360vh track.
+ * - Uses native CSS sticky pinning (sticky top-0 h-[100svh]) inside a 400svh track.
  * - Discrete step advances: 01 Consult → 02 Design → 03 Craft → 04 Install.
  * - Each step appears one at a time with a crisp, decisive transition.
  * - Zero GSAP pin overlay bugs or layout conflicts.
@@ -27,19 +28,39 @@ function getStepFromProgress(p) {
 
 export default function Bespoke() {
   const root = useRef(null);
+  const stage = useRef(null);
   const [activeStep, setActiveStep] = useState(0);
+
+  // How far the track scrolls while the stage is stuck, measured off the two
+  // elements themselves.
+  //
+  // It used to be `rect.height - window.innerHeight`, and that mixed viewport
+  // units: the track is sized in vh, the sticky stage in svh, and innerHeight is
+  // whichever the browser is showing RIGHT NOW. On a phone the address bar
+  // hiding changes innerHeight by ~60-110px mid-scroll, so the step boundaries
+  // moved under the reader's thumb - steps re-firing, and the last step never
+  // quite arriving. The stage's own offsetHeight is what actually sticks, so it
+  // is the correct denominator at every viewport, in any unit, on any device.
+  const travel = useCallback(() => {
+    const rect = root.current.getBoundingClientRect();
+    return {
+      top: window.scrollY + rect.top,
+      offset: -rect.top,
+      distance: rect.height - (stage.current?.offsetHeight ?? window.innerHeight),
+    };
+  }, []);
 
   const goToStep = useCallback((index) => {
     setActiveStep(index);
     if (!root.current) return;
-    const rect = root.current.getBoundingClientRect();
-    const currentScroll = window.scrollY;
-    const sectionTop = currentScroll + rect.top;
-    const totalScrollable = rect.height - window.innerHeight;
-    const targetProgress = STEP_TARGETS[index] ?? (index / 3);
-    const targetScroll = sectionTop + targetProgress * totalScrollable;
-    window.scrollTo({ top: targetScroll, behavior: 'smooth' });
-  }, []);
+    const { top, distance } = travel();
+    if (distance <= 0) return;
+    const targetProgress = STEP_TARGETS[index] ?? index / 3;
+    // Through Lenis, never window.scrollTo: Lenis rewrites the scroll position
+    // every frame, so a native smooth scroll fought it and the tab click either
+    // did nothing or snapped back. See scrollToTarget.
+    scrollToTarget(top + targetProgress * distance);
+  }, [travel]);
 
   const touchStartX = useRef(0);
   const touchStartY = useRef(0);
@@ -78,12 +99,10 @@ export default function Bespoke() {
       // A rect is read fresh every call, so the mapping cannot drift - whatever
       // is created before or after this, and however the document height moves.
       const compute = () => {
-        const el = root.current;
-        if (!el) return;
-        const rect = el.getBoundingClientRect();
-        const scrollable = rect.height - window.innerHeight;
-        if (scrollable <= 0) return;
-        setActiveStep(getStepFromProgress(Math.min(1, Math.max(0, -rect.top / scrollable))));
+        if (!root.current) return;
+        const { offset, distance } = travel();
+        if (distance <= 0) return;
+        setActiveStep(getStepFromProgress(Math.min(1, Math.max(0, offset / distance))));
       };
 
       // Deliberately over-wide: the cached range now only decides WHEN onUpdate
@@ -108,10 +127,11 @@ export default function Bespoke() {
     <section
       id="bespoke"
       ref={root}
-      className="relative on-deep bg-deep text-on-deep h-[400vh] lg:h-[480vh]"
+      className="relative on-deep bg-deep text-on-deep h-[400svh] lg:h-[480svh]"
     >
       {/* Sticky Stage — locks in place while scrolling through the steps */}
       <div
+        ref={stage}
         className="sticky top-0 h-[100svh] w-full flex flex-col justify-center overflow-hidden py-4 sm:py-6 lg:py-12"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
@@ -119,7 +139,8 @@ export default function Bespoke() {
         <div className="shell grid grid-cols-12 items-center gap-x-[clamp(1rem,2vw,2rem)] gap-y-md lg:gap-y-lg">
           
           {/* Left Column: Step Media Frame */}
-          <div className="col-span-12 sm:col-span-8 sm:col-start-3 lg:col-span-5 lg:col-start-1">
+          <div className="col-span-12 sm:col-span-8 sm:col-start-3 lg:col-span-5 lg:col-start-1
+                          [@media(max-height:560px)]:hidden">
             <div className="relative mx-auto aspect-[16/10] sm:aspect-[4/5] w-full max-h-[30svh] sm:max-h-[48svh] lg:max-h-[62svh] overflow-hidden border border-line-deep bg-deep/90 shadow-2xl">
               {bespoke.steps.map((s, i) => (
                 <div
@@ -160,12 +181,14 @@ export default function Bespoke() {
           {/* Right Column: Step-by-Step Details */}
           <div className="col-span-12 lg:col-span-7 lg:col-start-6 lg:pl-4">
             <p className="caption eyebrow text-gold">{bespoke.eyebrow}</p>
-            <h2 className="display mt-xs sm:mt-sm text-display-md lg:text-display-lg">
+            <h2 className="display mt-xs sm:mt-sm text-display-md lg:text-display-lg
+                           [@media(max-height:560px)]:text-2xl">
               {bespoke.headline}
             </h2>
 
             {/* Step Segments / Interactive Tabs */}
-            <div className="mt-md sm:mt-lg flex gap-2 sm:gap-4 border-b border-line-deep pb-3">
+            <div className="mt-md sm:mt-lg flex gap-2 sm:gap-4 border-b border-line-deep pb-3
+                            [@media(max-height:560px)]:mt-sm">
               {bespoke.steps.map((s, i) => {
                 const isActive = activeStep === i;
                 const isPast = activeStep > i;
@@ -210,7 +233,8 @@ export default function Bespoke() {
             </div>
 
             {/* Discrete Step Content Stage (Single Step at a Time) */}
-            <div className="relative mt-md sm:mt-xl min-h-[160px] sm:min-h-[190px] flex flex-col justify-center">
+            <div className="relative mt-md sm:mt-xl min-h-[160px] sm:min-h-[190px] flex flex-col justify-center
+                            [@media(max-height:560px)]:mt-sm [@media(max-height:560px)]:min-h-0">
               {bespoke.steps.map((s, i) => {
                 const isCurrent = activeStep === i;
                 return (

@@ -65,11 +65,11 @@ export default function Intro() {
         <div className="col-span-12 lg:col-start-3 lg:col-span-9 xl:col-start-4 xl:col-span-8">
           <p className="caption eyebrow text-ink-muted">{intro.eyebrow}</p>
 
-          <p className="manifesto display mt-lg text-display-md !leading-[1.25]">
+          <p className="manifesto display mt-lg text-manifesto !leading-[1.18]">
             {intro.manifesto}
           </p>
 
-          <p className="display mt-lg text-display-md text-gold-deep">{intro.signoff}</p>
+          <p className="display mt-lg text-manifesto text-gold-deep">{intro.signoff}</p>
 
         </div>
       </div>

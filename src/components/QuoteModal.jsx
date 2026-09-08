@@ -106,7 +106,7 @@ export default function QuoteModal() {
       <div
         ref={dialogRef}
         style={{ width: '100%', maxWidth: '640px' }}
-        className="relative z-10 w-full bg-deep border border-line-deep text-on-deep shadow-2xl p-6 sm:p-8 md:p-10 my-auto max-h-[92vh] overflow-y-auto"
+        className="relative z-10 w-full bg-deep border border-line-deep text-on-deep shadow-2xl p-6 sm:p-8 md:p-10 my-auto max-h-[92svh] overflow-y-auto"
       >
         {/* Top Gold Accent Line */}
         <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-gold to-transparent" />

@@ -51,12 +51,21 @@ export function lockScroll(locked) {
 }
 
 /**
- * Smoothly scroll to a selector or element using Lenis if active, falling back
- * to native smooth scrolling.
+ * Smoothly scroll to a selector, an element, or an absolute document offset,
+ * using Lenis if active and falling back to native smooth scrolling.
+ *
+ * The number case exists because Lenis has to own EVERY programmatic scroll on
+ * this page. Lenis writes the scroll position from GSAP's ticker every frame
+ * towards its own target, so a native `window.scrollTo({behavior:'smooth'})`
+ * running at the same time is simply overwritten - the page twitches and snaps
+ * back to where Lenis still thinks it is. Anything that wants to move the page
+ * to a computed offset (Bespoke's step tabs) has to come through here.
  */
 export function scrollToTarget(target) {
   if (instance) {
     instance.scrollTo(target, { offset: 0, duration: 1.1 });
+  } else if (typeof target === 'number') {
+    window.scrollTo({ top: target, behavior: 'smooth' });
   } else {
     const el = typeof target === 'string' ? document.querySelector(target) : target;
     el?.scrollIntoView({ behavior: 'smooth' });
