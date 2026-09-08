@@ -81,11 +81,22 @@ export default function Hero() {
         // split lines that only exist once the font has landed.
         mm = gsap.matchMedia();
 
-        // Desktop and tablet only. Below md the panel is already full width, so
-        // there is nothing for it to expand INTO — and a pinned hero on a 390px
-        // phone spends the visitor's first screen on an effect instead of on
-        // the proposition.
-        mm.add('(min-width: 768px)', () => {
+        // Two-column desktop with room to spare, and nothing else.
+        //
+        // WIDTH. Below lg the copy and the panel stack and the panel already
+        // fills the whole track, so there is nothing for it to expand INTO: at
+        // 768px the track is ~691px and the open panel ~706px, which spends a
+        // full screen of scroll on fifteen pixels. It used to run there anyway.
+        // On a phone it never ran, and shouldn't - that screen belongs to the
+        // proposition, not to an effect.
+        //
+        // HEIGHT. The pinned stage has to FIT, or `start: top top` parks a
+        // too-tall hero and clips its own caption. A square panel in a
+        // six-column track plus the section's top padding needs ~700px, which a
+        // laptop has and a landscape tablet at 1024x600 does not. Both queries
+        // are live: rotate the device and matchMedia reverts or builds the pin
+        // for the new size on its own.
+        mm.add('(min-width: 1024px) and (min-height: 700px)', () => {
           const panel = root.current.querySelector('.hero-panel');
           const inner = root.current.querySelector('.hero-panel-inner');
 
@@ -99,12 +110,13 @@ export default function Hero() {
           // the expanded panel 116px off the left of the viewport.
           //
           // Neutralising the margin here makes the untransformed left edge the
-          // track's left edge at every width, so one expression holds
-          // throughout: x = trackWidth - currentWidth. gsap.matchMedia reverts
-          // this set when the query stops matching.
+          // track's left edge at every width, so every x below is measured from
+          // one fixed origin. gsap.matchMedia reverts this set when the query
+          // stops matching.
           // Captured, never measured on demand: reading the panel back during a
           // pin returns whatever the tween last wrote.
           let track = 0;
+          let trackLeft = 0;
           let rest = 0;
           let restH = 0;
           const capture = () => {
@@ -112,6 +124,12 @@ export default function Hero() {
             const h = inner.style.height;
             panel.style.width = '100%';
             track = panel.offsetWidth;
+            // Where the track's left edge sits in the VIEWPORT, with the x the
+            // tween has already written subtracted back out. Everything else
+            // here is width-relative; centring the open panel is the one thing
+            // that needs a viewport coordinate.
+            trackLeft =
+              panel.getBoundingClientRect().left - (Number(gsap.getProperty(panel, 'x')) || 0);
             panel.style.width = '';
             inner.style.height = '';
             rest = panel.offsetWidth;
@@ -133,8 +151,23 @@ export default function Hero() {
           // the first frame; matchMedia reverts both on exit.
           gsap.set(panel, { marginLeft: 0, x: track - rest });
 
-          const openW = () => Math.round(window.innerWidth * 0.92);
+          // 92vw, but never past the shell's own max width. `dining` is 1087px
+          // wide, so on a 2560px monitor an uncapped 92vw would upscale it to
+          // 2355 - a soft, obviously stretched photograph as the FIRST thing a
+          // visitor on a large display sees. The cap also keeps the open frame
+          // inside the same measure every other section on the page obeys, so
+          // the hero still reads as belonging to the page at 2560 as it does at
+          // 1280, where the cap never binds.
+          const openW = () => Math.round(Math.min(window.innerWidth * 0.92, 1680));
           const openH = () => Math.round(Math.min(window.innerHeight * 0.78, openW() * 0.52));
+          // The open panel is centred on the VIEWPORT, not right-aligned on the
+          // track. `.shell` stops growing at its max width, so on a wide monitor
+          // the track's right edge is well inside the viewport - holding the
+          // panel's right edge there and growing it to 92vw pushed its left edge
+          // hundreds of pixels off the left of the screen. Centring keeps the
+          // ivory margin even on both sides at every width; below the shell's
+          // max width it lands within a pixel of where it always did.
+          const openX = () => Math.round((window.innerWidth - openW()) / 2 - trackLeft);
 
           const tl = gsap.timeline({
             scrollTrigger: {
@@ -167,7 +200,7 @@ export default function Hero() {
             // explicit height simply overrides the 4:5 the CSS supplies at rest.
             .fromTo(panel,
               { width: () => rest, x: () => track - rest },
-              { width: openW, x: () => track - openW(), ease: 'none' }, 0)
+              { width: openW, x: openX, ease: 'none' }, 0)
             .fromTo(inner,
               { height: () => restH },
               { height: openH, ease: 'none' }, 0)
